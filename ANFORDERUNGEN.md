@@ -11,11 +11,13 @@
 - Als CEO möchte ich die heutigen Besucher einsehen um zu wissen wer heute erwartet wird.
 - Als Techniker möchte ich mich Anmelden um eine defekte Leitung zu reparieren.
 - Als Mitarbeiter möchte ich meine ID scannen um das Gebäude zu betreten.
-- Als CEO möchte ich einen NUtzer von der IP-Bannliste entfernen damit er erneut einen Antrag kann.
+- Als CEO möchte ich einen Nutzer von der IP-Bannliste entfernen damit er erneut einen Antrag kann.
 - Als Mitarbeiter möchte ich einen kaputten Stuhl melden um Komfort bei der Arbeit zu gewährleisten.
 - Als Handwerker möchte ich auschecken um nach Hause zu gehen.
 - Als CTO möchte ich einen Besucher genehmigen um ihm den Zutritt zu gewähren.
 - Als Putzkraft möchte ich einchecken um das Gebäude zu reinigen.
+- Als Praktikant möchte ich meinen Qr-Code einscannen um zu lernen.
+- Als besucher möchte ich meine Email verifizieren damit mein Antrag anerkannt wird.
 
 ## Daten
 | Liste | Felder | Speicherdauer | Begründung |
