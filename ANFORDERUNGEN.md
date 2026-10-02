@@ -8,22 +8,22 @@
     Verwaltung: Heutige Besucher sehen, Schadenslisten/Sperrliste einsehen 
     Verwaltung mit Adminstatus: (CEO/CTO Sekräterin): Wie Verwaltung + Anträge annehmen/ablehnen 
 ## User-Stories
-- Als CEO möchte ich die heutigen Besucher einsehen um zu wissen wer heute erwartet wird.
-- Als Techniker möchte ich mich Anmelden um eine defekte Leitung zu reparieren.
-- Als Mitarbeiter möchte ich meine ID scannen um das Gebäude zu betreten.
-- Als CEO möchte ich einen Nutzer von der IP-Bannliste entfernen damit er erneut einen Antrag kann.
-- Als Mitarbeiter möchte ich einen kaputten Stuhl melden um Komfort bei der Arbeit zu gewährleisten.
-- Als Handwerker möchte ich auschecken um nach Hause zu gehen.
-- Als CTO möchte ich einen Besucher genehmigen um ihm den Zutritt zu gewähren.
-- Als Putzkraft möchte ich einchecken um das Gebäude zu reinigen.
-- Als Praktikant möchte ich meinen Qr-Code einscannen um zu lernen.
-- Als besucher möchte ich meine Email verifizieren damit mein Antrag anerkannt wird.
+- Als CEO (Verwaltung) möchte ich die heutigen Besucher einsehen um zu wissen wer heute erwartet wird.
+- Als Techniker (Besucher) möchte ich mich Anmelden um eine defekte Leitung zu reparieren.
+- Als Mitarbeiter (Mitarbeiter) möchte ich meine ID scannen um das Gebäude zu betreten.
+- Als CEO (Verwaltung) möchte ich einen Nutzer von der IP-Bannliste entfernen damit er erneut einen Antrag kann.
+- Als Mitarbeiter (Mitarbeiter) möchte ich einen kaputten Stuhl melden um Komfort bei der Arbeit zu gewährleisten.
+- Als Handwerker (Besucher) möchte ich auschecken um nach Hause zu gehen.
+- Als CTO (Verwaltung) möchte ich einen Besucher genehmigen um ihm den Zutritt zu gewähren.
+- Als Putzkraft (Besucher) möchte ich einchecken um das Gebäude zu reinigen.
+- Als Praktikant (Besucher) möchte ich meinen Qr-Code einscannen um zu lernen.
+- Als Besucher (Besucher) möchte ich meine Email verifizieren damit mein Antrag anerkannt wird.
 
 ## Daten
 | Liste | Felder | Speicherdauer | Begründung |
 |---|---|---|---|
 | Besuch | Name, E-Mail, Art, Grund, Status, Ein-/Austrittszeit, Bearbeitet von, Genehmigt von | 5 Jahre | mögliche Nachverfolgung von Schäden oder Straftaten |
-| Bestätigungscodes | Code, E-Mail, Zeitpunkt | 10 min | Verifizierung |
+| Bestätigungscodes/E-mails | Code, E-Mail, Zeitpunkt | 10 min | Verifizierung |
 | Schäden | Beschreibung, Datum, Melder, ggf. Verursacher (nur bei Geständnis), Bearbeitet von | 5 Jahre | Nachverfolgung des Tatbestandes und Versicherungsfrage klären |
 | Schäden mit Täter | Schaden + verknüpfter Besuch | 5 Jahre | Nachverfolgung des Tatbestandes und Versicherungsfrage klären |
 | Sperrliste | IP, Zeitpunkt, Bearbeitet von (bei Aufhebung) | 1. Sperre: 1 Woche, 2. Sperre: 4 Wochen, 3. Sperre: Lifetime | Spamblocking |
@@ -40,7 +40,8 @@
 
 - Die Speicherdauer der Daten steht im Abschnitt [Daten](#daten).
 - Zugriffsrechte:
-    - Die **Verwaltung** (CEO, CTO und Sekretärin) hat Admin-Rechte und darf alle Daten sehen.
+    - Die normale Verwaltung kann Heutige Besucher sehen, Schadenslisten/Sperrliste einsehen
+    - Die **Verwaltung mit Adminstatus** (CEO, CTO und Sekretärin) hat Admin-Rechte und darf alle Daten sehen.
     - Mitarbeiter sehen nur ihre eigenen Daten.
     - Besucher sehen nur ihre eigenen Daten.
 - Besucher werden über die Speicherung ihrer Daten informiert, und zwar über die **Privacy Policy**, die unten auf jeder Seite verlinkt ist.
