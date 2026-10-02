@@ -26,4 +26,12 @@ public class Besucher {
     public void setFirma(String firma) {
         this.firma = firma;
     }
+
+    public LocalTime getAnkunft() {
+        return ankunft;
+    }
+
+    public void setAnkunft(LocalTime ankunft) {
+        this.ankunft = ankunft;
+    }
 }
