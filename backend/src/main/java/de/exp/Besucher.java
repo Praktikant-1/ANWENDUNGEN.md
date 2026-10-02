@@ -10,9 +10,20 @@ public class Besucher {
 
     public Besucher() {
     }
+
     public String getName() {
+        return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getFirma() {
+        return firma;
+    }
+
+    public void setFirma(String firma) {
+        this.firma = firma;
+    }
+}
