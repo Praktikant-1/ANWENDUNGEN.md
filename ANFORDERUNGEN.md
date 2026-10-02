@@ -12,7 +12,6 @@
 - Als Techniker (Besucher) möchte ich mich Anmelden um eine defekte Leitung zu reparieren.
 - Als Mitarbeiter (Mitarbeiter) möchte ich meine ID scannen um das Gebäude zu betreten.
 - Als CEO (Verwaltung) möchte ich einen Nutzer von der IP-Bannliste entfernen damit er erneut einen Antrag kann.
-- Als Mitarbeiter (Mitarbeiter) möchte ich einen kaputten Stuhl melden um Komfort bei der Arbeit zu gewährleisten.
 - Als Handwerker (Besucher) möchte ich auschecken um nach Hause zu gehen.
 - Als CTO (Verwaltung) möchte ich einen Besucher genehmigen um ihm den Zutritt zu gewähren.
 - Als Putzkraft (Besucher) möchte ich einchecken um das Gebäude zu reinigen.
@@ -26,7 +25,7 @@
 | Bestätigungscodes/E-mails | Code, E-Mail, Zeitpunkt | 10 min | Verifizierung |
 | Schäden | Beschreibung, Datum, Melder, ggf. Verursacher (nur bei Geständnis), Bearbeitet von | 5 Jahre | Nachverfolgung des Tatbestandes und Versicherungsfrage klären |
 | Schäden mit Täter | Schaden + verknüpfter Besuch | 5 Jahre | Nachverfolgung des Tatbestandes und Versicherungsfrage klären |
-| Sperrliste | IP, Zeitpunkt, Bearbeitet von (bei Aufhebung) | 1. Sperre: 1 Woche, 2. Sperre: 4 Wochen, 3. Sperre: Lifetime | Spamblocking |
+| Sperrliste | IP, Zeitpunkt, Bearbeitet von (bei Aufhebung) | 1. Sperre: 1 Woche, 2. Sperre: 4 Wochen, 3. Sperre: Lifetime | Spamschutz |
 
     Besuch: mögliche Nachverfolgung von Schäden oder Straftaten
     Bestätigungscodes/ E-mails: Verifizierung
@@ -36,17 +35,7 @@
 
 ## Nicht-funktionale Anforderungen
 
-### Datenschutz
-
-- Die Speicherdauer der Daten steht im Abschnitt [Daten](#daten).
-- Zugriffsrechte:
-    - Die normale Verwaltung kann Heutige Besucher sehen, Schadenslisten/Sperrliste einsehen
-    - Die **Verwaltung mit Adminstatus** (CEO, CTO und Sekretärin) hat Admin-Rechte und darf alle Daten sehen.
-    - Mitarbeiter sehen nur ihre eigenen Daten.
-    - Besucher sehen nur ihre eigenen Daten.
-- Besucher werden über die Speicherung ihrer Daten informiert, und zwar über die **Privacy Policy**, die unten auf jeder Seite verlinkt ist.
-
-### Bedienbarkeit
+### Responsive Design
 
 - Die App ist eine Web-App und läuft im Browser, deshalb funktioniert sie auf Handy, Tablet und PC.
 - Die Sprache der Oberfläche ist Englisch, kann aber nach Belieben geändert werden.
