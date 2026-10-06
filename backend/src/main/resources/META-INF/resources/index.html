@@ -7,6 +7,70 @@
 </head>
 <body>
 <h1>EXPass – Visitor Management</h1>
-<p>Welcome!</p>
+
+<h2>Add visitor</h2>
+<form id="besucher-formular">
+    <input name="name" placeholder="Name" required>
+    <input name="firma" placeholder="Company">
+    <input name="ankunft" type="time">
+    <button type="submit">Add</button>
+</form>
+<p id="meldung"></p>
+
+<h2>Visitors</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Company</th>
+        <th>Arrival</th>
+    </tr>
+    </thead>
+    <tbody id="besucher-tabelle"></tbody>
+</table>
+
+<script>
+    async function ladeBesucher() {
+        const antwort = await fetch('/besucher');
+        const besucherListe = await antwort.json();
+
+        const tabelle = document.getElementById('besucher-tabelle');
+        tabelle.innerHTML = '';
+
+        for (const besucher of besucherListe) {
+            const zeile = document.createElement('tr');
+            for (const wert of [besucher.name, besucher.firma, besucher.ankunft]) {
+                const zelle = document.createElement('td');
+                zelle.textContent = wert ?? '';
+                zeile.appendChild(zelle);
+            }
+            tabelle.appendChild(zeile);
+        }
+    }
+
+    document.getElementById('besucher-formular').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const meldung = document.getElementById('meldung');
+
+        const daten = Object.fromEntries(new FormData(event.target));
+        if (!daten.ankunft) delete daten.ankunft;
+
+        const antwort = await fetch('/besucher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(daten)
+        });
+
+        if (antwort.ok) {
+            meldung.textContent = 'Visitor added.';
+            event.target.reset();
+            ladeBesucher();
+        } else {
+            meldung.textContent = 'Error: visitor could not be saved.';
+        }
+    });
+
+    ladeBesucher();
+</script>
 </body>
 </html>
