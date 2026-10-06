@@ -35,8 +35,11 @@
     <input name="firma" placeholder="Company">
     <input name="ankunft" type="time">
     <button type="submit">Add</button>
+    <button type="button" id="jetzt">Now</button>
+
 </form>
-<p id="meldung"></p>
+
+</form><p id="meldung"></p>
 
 <h2>Visitors</h2>
 <table>
@@ -92,6 +95,11 @@
     });
 
     ladeBesucher();
+
+    document.getElementById('jetzt').addEventListener('click', () => {
+              document.querySelector('[name="ankunft"]').value =
+                  new Date().toTimeString().slice(0, 5);
+          });
 </script>
 </body>
 </html>
