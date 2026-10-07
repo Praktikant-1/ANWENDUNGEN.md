@@ -18,6 +18,7 @@ public class AccountService {
         erstellen("LeonhardKlotz", "leo123", Account.Rolle.MITARBEITER, false);
         erstellen("Nicole", "nicole123", Account.Rolle.VERWALTUNG, false);
         erstellen("Markus", "markus123", Account.Rolle.VERWALTUNG, true);
+        erstellen("Louis", "louis123", Account.Rolle.MITARBEITER, false);
     }
 
     public List<Account> alle() {

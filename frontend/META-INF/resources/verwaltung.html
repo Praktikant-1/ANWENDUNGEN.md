@@ -46,6 +46,26 @@
 </form>
 <p id="accounts-link" hidden><a href="/accounts.html" data-i18n="verwaltung.accountsLink">Manage accounts</a></p>
 
+<!-- Übersicht: Zahlen auf einen Blick, Klick springt zum Bereich -->
+<section class="uebersicht">
+    <a class="kachel" id="kachel-offen" href="#bereich-antraege">
+        <span class="kachel-zahl" id="zahl-offen">–</span>
+        <span data-i18n="uebersicht.offen">Open requests</span>
+    </a>
+    <a class="kachel" href="#bereich-besucher">
+        <span class="kachel-zahl" id="zahl-erwartet">–</span>
+        <span data-i18n="uebersicht.erwartet">Expected today</span>
+    </a>
+    <a class="kachel" href="#bereich-besucher">
+        <span class="kachel-zahl" id="zahl-im-haus">–</span>
+        <span data-i18n="uebersicht.imHaus">In the building</span>
+    </a>
+    <a class="kachel" href="#bereich-schaeden">
+        <span class="kachel-zahl" id="zahl-schaeden">–</span>
+        <span data-i18n="uebersicht.schaeden">Damages today</span>
+    </a>
+</section>
+
 <section class="karte">
 <h2 id="bereich-hinzufuegen" data-i18n="verwaltung.hinzufuegenTitel">Add visitor</h2>
 <form id="besucher-formular">

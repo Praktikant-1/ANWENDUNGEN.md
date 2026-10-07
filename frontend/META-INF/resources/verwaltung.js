@@ -36,6 +36,29 @@ function zeitraum(datum, bis) {
     return bis && bis !== datum ? `${datum} – ${bis}` : (datum ?? '');
 }
 
+// Zuletzt geladene Listen für die Übersicht (null = noch nicht geladen oder keine Berechtigung)
+let letzteBesucher = null;
+let letzteAntraege = null;
+let letzteSchaeden = null;
+
+// Übersicht oben: offene Anfragen, heute erwartet, gerade im Haus, Schäden heute
+function aktualisiereUebersicht() {
+    const tag = new Date().toLocaleDateString('sv'); // JJJJ-MM-TT, wie vom Backend
+    const zahlen = {
+        'zahl-offen': letzteAntraege?.filter(antrag => antrag.status === 'OFFEN').length,
+        // Besuch ist heute (mehrtägig: jeder Tag von "datum" bis "bis") und noch nicht eingecheckt
+        'zahl-erwartet': letzteBesucher?.filter(b => b.datum <= tag && tag <= (b.bis || b.datum) && !b.ankunft).length,
+        // Eingecheckt, aber noch nicht ausgecheckt
+        'zahl-im-haus': letzteBesucher?.filter(b => b.ankunft && !b.austritt).length,
+        'zahl-schaeden': letzteSchaeden?.filter(schaden => schaden.datum === tag).length,
+    };
+    for (const [id, zahl] of Object.entries(zahlen)) {
+        document.getElementById(id).textContent = zahl ?? '–';
+    }
+    // Offene Anfragen warten auf eine Entscheidung – deshalb hervorheben
+    document.getElementById('kachel-offen').classList.toggle('hervorheben', zahlen['zahl-offen'] > 0);
+}
+
 // Ankunftszeit anzeigen oder, wenn noch keine da ist, nachträglich erfassen
 function ankunftZelle(besucher) {
     const zelle = document.createElement('td');
@@ -110,6 +133,8 @@ async function ladeBesucher() {
         return;
     }
     const besucherListe = await antwort.json();
+    letzteBesucher = besucherListe;
+    aktualisiereUebersicht();
 
     tabelle.innerHTML = '';
 
@@ -165,6 +190,8 @@ async function ladeAntraege() {
         return;
     }
     const antraege = await antwort.json();
+    letzteAntraege = antraege;
+    aktualisiereUebersicht();
 
     tabelle.innerHTML = '';
 
@@ -269,6 +296,8 @@ async function ladeSchaeden() {
         return;
     }
     const schaeden = await antwort.json();
+    letzteSchaeden = schaeden;
+    aktualisiereUebersicht();
 
     tabelle.innerHTML = '';
     if (schaeden.length === 0) {
