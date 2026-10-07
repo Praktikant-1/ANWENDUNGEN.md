@@ -24,10 +24,21 @@
             border: 1px solid white;
             padding: 8px 16px;
         }
+        .logout {
+            padding: 8px 16px;
+            color: black;
+            background-color: darkorange;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 <h1>EXPass – Visitor Management</h1>
+
+<form action="/logout" method="post">
+    <button type="submit" class="logout">Log out</button>
+</form>
 
 <h2>Add visitor</h2>
 <form id="besucher-formular">
@@ -43,6 +54,7 @@
 <p id="meldung"></p>
 
 <h2>Requests</h2>
+<p id="antrag-meldung"></p>
 <table>
     <thead>
     <tr>
@@ -72,11 +84,25 @@
 </table>
 
 <script>
+    // Nicht (mehr) eingeloggt: Quarkus leitet auf die Login-Seite um
+    function zumLoginWennAbgelaufen(antwort) {
+        if (antwort.redirected) {
+            location.href = '/login/';
+            return true;
+        }
+        return false;
+    }
+
     async function ladeBesucher() {
+        const tabelle = document.getElementById('besucher-tabelle');
         const antwort = await fetch('/besucher');
+        if (zumLoginWennAbgelaufen(antwort)) return;
+        if (!antwort.ok) {
+            tabelle.innerHTML = '<tr><td colspan="4">No permission to see visitors.</td></tr>';
+            return;
+        }
         const besucherListe = await antwort.json();
 
-        const tabelle = document.getElementById('besucher-tabelle');
         tabelle.innerHTML = '';
 
         if (besucherListe.length === 0) {
@@ -107,6 +133,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(daten)
         });
+        if (zumLoginWennAbgelaufen(antwort)) return;
 
         if (antwort.ok) {
             meldung.textContent = 'Visitor added.';
@@ -122,10 +149,15 @@
     const statusText = { OFFEN: 'Open', ANGENOMMEN: 'Accepted', ABGELEHNT: 'Rejected' };
 
     async function ladeAntraege() {
+        const tabelle = document.getElementById('antrag-tabelle');
         const antwort = await fetch('/antraege');
+        if (zumLoginWennAbgelaufen(antwort)) return;
+        if (!antwort.ok) {
+            tabelle.innerHTML = '<tr><td colspan="7">No permission to see requests.</td></tr>';
+            return;
+        }
         const antraege = await antwort.json();
 
-        const tabelle = document.getElementById('antrag-tabelle');
         tabelle.innerHTML = '';
 
         if (antraege.length === 0) {
@@ -147,7 +179,10 @@
                     const knopf = document.createElement('button');
                     knopf.textContent = text;
                     knopf.addEventListener('click', async () => {
-                        await fetch(`/antraege/${antrag.id}/${aktion}`, { method: 'POST' });
+                        const antwort = await fetch(`/antraege/${antrag.id}/${aktion}`, { method: 'POST' });
+                        if (zumLoginWennAbgelaufen(antwort)) return;
+                        document.getElementById('antrag-meldung').textContent =
+                            antwort.status === 403 ? 'Only admins can accept or reject requests.' : '';
                         ladeAntraege();
                     });
                     aktionen.appendChild(knopf);

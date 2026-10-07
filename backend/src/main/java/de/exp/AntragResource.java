@@ -1,5 +1,7 @@
 package de.exp;
 
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
@@ -18,12 +20,14 @@ public class AntragResource {
     private final AtomicLong naechsteId = new AtomicLong(1);
 
     @GET
+    @RolesAllowed("verwaltung")
     public List<Antrag> alle() {
         return antraege;
     }
 
     // Öffentlich: Besucher stellen hier ihren Antrag
     @POST
+    @PermitAll
     public Antrag stellen(Antrag antrag) {
         if (antrag.getName() == null || antrag.getName().isBlank()
                 || antrag.getVon() == null || antrag.getBis() == null) {
@@ -39,12 +43,14 @@ public class AntragResource {
     }
 
     @POST
+    @RolesAllowed("admin")
     @Path("/{id}/annehmen")
     public Antrag annehmen(@PathParam("id") long id) {
         return setzeStatus(id, Antrag.Status.ANGENOMMEN);
     }
 
     @POST
+    @RolesAllowed("admin")
     @Path("/{id}/ablehnen")
     public Antrag ablehnen(@PathParam("id") long id) {
         return setzeStatus(id, Antrag.Status.ABGELEHNT);
