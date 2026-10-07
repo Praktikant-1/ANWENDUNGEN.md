@@ -61,6 +61,11 @@
         const tabelle = document.getElementById('besucher-tabelle');
         tabelle.innerHTML = '';
 
+        if (besucherListe.length === 0) {
+            tabelle.innerHTML = '<tr><td colspan="3">No visitors yet.</td></tr>';
+            return;
+        }
+
         for (const besucher of besucherListe) {
             const zeile = document.createElement('tr');
             for (const wert of [besucher.name, besucher.firma, besucher.ankunft]) {
