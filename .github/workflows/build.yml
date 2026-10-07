@@ -1,0 +1,26 @@
+name: Backend Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+      - name: Java 25 instalieren
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Bauen und testen
+        run:  ./mvnw -B verify
