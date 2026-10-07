@@ -40,7 +40,23 @@
 
 </form>
 
-</form><p id="meldung"></p>
+<p id="meldung"></p>
+
+<h2>Requests</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Company</th>
+        <th>Reason</th>
+        <th>From</th>
+        <th>Until</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody id="antrag-tabelle"></tbody>
+</table>
 
 <h2>Visitors</h2>
 <table>
@@ -102,6 +118,47 @@
     });
 
     ladeBesucher();
+
+    const statusText = { OFFEN: 'Open', ANGENOMMEN: 'Accepted', ABGELEHNT: 'Rejected' };
+
+    async function ladeAntraege() {
+        const antwort = await fetch('/antraege');
+        const antraege = await antwort.json();
+
+        const tabelle = document.getElementById('antrag-tabelle');
+        tabelle.innerHTML = '';
+
+        if (antraege.length === 0) {
+            tabelle.innerHTML = '<tr><td colspan="7">No requests yet.</td></tr>';
+            return;
+        }
+
+        for (const antrag of antraege) {
+            const zeile = document.createElement('tr');
+            for (const wert of [antrag.name, antrag.firma, antrag.grund, antrag.von, antrag.bis, statusText[antrag.status]]) {
+                const zelle = document.createElement('td');
+                zelle.textContent = wert ?? '';
+                zeile.appendChild(zelle);
+            }
+
+            const aktionen = document.createElement('td');
+            if (antrag.status === 'OFFEN') {
+                for (const [text, aktion] of [['Accept', 'annehmen'], ['Reject', 'ablehnen']]) {
+                    const knopf = document.createElement('button');
+                    knopf.textContent = text;
+                    knopf.addEventListener('click', async () => {
+                        await fetch(`/antraege/${antrag.id}/${aktion}`, { method: 'POST' });
+                        ladeAntraege();
+                    });
+                    aktionen.appendChild(knopf);
+                }
+            }
+            zeile.appendChild(aktionen);
+            tabelle.appendChild(zeile);
+        }
+    }
+
+    ladeAntraege();
 
     document.getElementById('jetzt').addEventListener('click', () => {
               document.querySelector('[name="ankunft"]').value =

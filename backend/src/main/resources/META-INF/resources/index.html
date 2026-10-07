@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EXPass</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+        }
+        h1 {
+            color: darkorange;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 320px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        .login {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 16px;
+            color: black;
+            background-color: darkorange;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<h1>EXPass – Visitor Management</h1>
+
+<h2>Request a visit</h2>
+<form id="antrag-formular">
+    <input name="name" placeholder="Name" required>
+    <input name="firma" placeholder="Company">
+    <input name="grund" placeholder="Reason for visit" required>
+    <label>From <input name="von" type="date" required></label>
+    <label>Until <input name="bis" type="date" required></label>
+    <button type="submit">Send request</button>
+</form>
+<p id="meldung"></p>
+
+<h2>Staff</h2>
+<a class="login" href="/login/">Log in</a>
+
+<script>
+    const heute = new Date().toISOString().slice(0, 10);
+    const von = document.querySelector('[name="von"]');
+    const bis = document.querySelector('[name="bis"]');
+    von.min = heute;
+    bis.min = heute;
+    von.addEventListener('change', () => bis.min = von.value || heute);
+
+    document.getElementById('antrag-formular').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const meldung = document.getElementById('meldung');
+
+        const daten = Object.fromEntries(new FormData(event.target));
+
+        const antwort = await fetch('/antraege', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(daten)
+        });
+
+        if (antwort.ok) {
+            meldung.textContent = 'Request sent.';
+            event.target.reset();
+        } else {
+            meldung.textContent = 'Error: request could not be sent.';
+        }
+    });
+</script>
+</body>
+</html>
