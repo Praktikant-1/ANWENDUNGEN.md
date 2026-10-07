@@ -41,6 +41,11 @@
 <p><a href="/">Back to start page</a></p>
 
 <script>
+    // Quarkus merkt sich die Seite, die man vor dem Login öffnen wollte, und schickt einen danach dorthin.
+    // Das löschen wir, damit jeder über /nach-login auf seiner eigenen Seite landet
+    // (sonst landet z. B. ein Mitarbeiter auf verwaltung.html und bekommt 403).
+    document.cookie = 'quarkus-redirect-location=; Max-Age=0; path=/';
+
     if (location.search.includes('fehler')) {
         document.getElementById('fehler').hidden = false;
     }
