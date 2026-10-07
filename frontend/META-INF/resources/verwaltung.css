@@ -159,3 +159,59 @@ tbody tr:hover {
     font-size: 0.85em;
     font-weight: bold;
 }
+
+/* Übersicht oben: vier Kacheln mit Zahlen */
+.uebersicht {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 1100px;
+    margin: 24px auto 0;
+}
+.kachel {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+    color: #ccc;
+    text-decoration: none;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 10px;
+}
+.kachel:hover {
+    border-color: darkorange;
+}
+.kachel-zahl {
+    font-size: 2em;
+    font-weight: bold;
+    color: white;
+}
+.kachel.hervorheben {
+    border-color: darkorange;
+    background-color: rgba(255, 140, 0, 0.12);
+}
+.kachel.hervorheben .kachel-zahl {
+    color: darkorange;
+}
+@media (max-width: 700px) {
+    .uebersicht {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Handy: Leiste oben umbrechen, Suche bekommt eine eigene Zeile */
+@media (max-width: 700px) {
+    .schnellwahl {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .schnellwahl input {
+        order: 10;
+        flex: 1 1 100%;
+        max-width: none;
+    }
+    h2 {
+        scroll-margin-top: 130px;
+    }
+}

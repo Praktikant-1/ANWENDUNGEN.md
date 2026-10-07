@@ -115,6 +115,10 @@ const TEXTE = {
         'verwaltung.grundOptional': 'Grund (optional)',
         'verwaltung.keineRechteSchaeden': 'Keine Berechtigung, Schäden zu sehen.',
         'verwaltung.keineSchaeden': 'Keine Schäden gemeldet.',
+        'uebersicht.offen': 'Offene Anfragen',
+        'uebersicht.erwartet': 'Heute erwartet',
+        'uebersicht.imHaus': 'Gerade im Haus',
+        'uebersicht.schaeden': 'Schäden heute',
 
         // Accounts
         'accounts.seitentitel': 'EXPass – Accounts',
@@ -244,6 +248,10 @@ const TEXTE = {
         'verwaltung.grundOptional': 'Reason (optional)',
         'verwaltung.keineRechteSchaeden': 'No permission to see damages.',
         'verwaltung.keineSchaeden': 'No damages reported.',
+        'uebersicht.offen': 'Open requests',
+        'uebersicht.erwartet': 'Expected today',
+        'uebersicht.imHaus': 'In the building',
+        'uebersicht.schaeden': 'Damages today',
 
         'accounts.seitentitel': 'EXPass – Accounts',
         'accounts.zurueck': 'Back to visitor management',
