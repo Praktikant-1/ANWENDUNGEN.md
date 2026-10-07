@@ -6,6 +6,7 @@ public class Besucher {
 
     private String name;
     private String firma;
+    private String grund;
     private LocalTime ankunft;
 
     public Besucher() {
@@ -25,6 +26,14 @@ public class Besucher {
 
     public void setFirma(String firma) {
         this.firma = firma;
+    }
+
+    public String getGrund() {
+        return grund;
+    }
+
+    public void setGrund(String grund) {
+        this.grund = grund;
     }
 
     public LocalTime getAnkunft() {
