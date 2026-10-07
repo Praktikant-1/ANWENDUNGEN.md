@@ -1,0 +1,181 @@
+/* Styles nur für verwaltung.html */
+table {
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+/* Breite Tabellen auf dem Handy seitlich scrollbar statt die ganze Seite zu verkleinern */
+.tabelle-scroll {
+    overflow-x: auto;
+    max-width: 100%;
+}
+th, td {
+    border: 1px solid white;
+    padding: 8px 16px;
+}
+a {
+    color: darkorange;
+}
+html {
+    scroll-behavior: smooth;
+}
+/* Platz für die Leiste oben, damit sie beim Springen die Überschrift nicht verdeckt */
+h2 {
+    scroll-margin-top: 80px;
+}
+/* Leiste oben: Aufklapp-Menü zum Springen + Suche, bleibt beim Scrollen sichtbar */
+.schnellwahl {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: -8px -8px 0;
+    padding: 10px 16px;
+    background-color: #1a1a1a;
+    border-bottom: 1px solid darkorange;
+}
+.schnellwahl input {
+    flex: 1;
+    max-width: 400px;
+    min-width: 0;
+}
+#treffer {
+    font-size: 0.85em;
+    color: #bbb;
+}
+.sprungmenue {
+    position: relative;
+}
+.sprungmenue summary {
+    list-style: none;
+    padding: 8px 14px;
+    color: darkorange;
+    border: 1px solid darkorange;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.sprungmenue summary::-webkit-details-marker {
+    display: none;
+}
+.sprungmenue[open] summary {
+    background-color: rgba(255, 140, 0, 0.15);
+}
+.sprung-links {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 170px;
+    padding: 6px;
+    text-align: left;
+    background-color: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 8px;
+}
+.sprung-links a {
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+.sprung-links a:hover {
+    background-color: rgba(255, 140, 0, 0.15);
+}
+.logout {
+    padding: 8px 16px;
+    color: black;
+    background-color: darkorange;
+    border: none;
+    cursor: pointer;
+}
+/* Eingabefelder */
+input, select, textarea {
+    padding: 8px 10px;
+    background-color: #1e1e1e;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font: inherit;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: darkorange;
+}
+
+/* Buttons: Absenden orange gefüllt, alle anderen nur mit Rahmen */
+button {
+    padding: 8px 14px;
+    background-color: transparent;
+    color: darkorange;
+    border: 1px solid darkorange;
+    border-radius: 6px;
+    font: inherit;
+    cursor: pointer;
+}
+button:hover {
+    background-color: rgba(255, 140, 0, 0.15);
+}
+button[type="submit"] {
+    background-color: darkorange;
+    color: black;
+}
+button[type="submit"]:hover {
+    background-color: orange;
+}
+
+/* Bereiche als Karten */
+.karte {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 16px 24px;
+    margin: 24px auto;
+    max-width: 1100px;
+}
+.karte h2 {
+    margin-top: 0;
+}
+
+/* Zeile beim Drüberfahren hervorheben */
+tbody tr:hover {
+    background-color: rgba(255, 140, 0, 0.08);
+}
+
+/* Status-Abzeichen bei den Anträgen */
+.badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+.badge-offen      { background-color: #5c4400; color: #ffcc4d; }
+.badge-angenommen { background-color: #12401f; color: #6ee38d; }
+.badge-abgelehnt  { background-color: #4d1414; color: #ff7b7b; }
+
+/* Meldungen als grüne bzw. rote Box */
+.meldung {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 6px;
+}
+.meldung.ok     { background-color: #12401f; color: #6ee38d; }
+.meldung.fehler { background-color: #4d1414; color: #ff7b7b; }
+
+/* Ankunftszeit fehlt noch (z. B. angenommener Antrag) */
+.zeit-fehlt {
+    background-color: rgba(220, 40, 40, 0.2);
+}
+.zeit-fehlt input {
+    border-color: #ff5c5c;
+}
+.zeit-fehlt-hinweis {
+    display: block;
+    margin-bottom: 4px;
+    color: #ff7b7b;
+    font-size: 0.85em;
+    font-weight: bold;
+}

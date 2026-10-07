@@ -1,0 +1,10 @@
+/* Gemeinsame Styles für alle Seiten */
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background-color: black;
+    color: white;
+}
+h1 {
+    color: darkorange;
+}
