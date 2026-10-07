@@ -26,6 +26,11 @@ function uhrzeit(wert) {
     return wert ? wert.slice(0, 5) : '';
 }
 
+// "2026-10-07T15:10:00" -> "2026-10-07 15:10"
+function datumUhrzeit(wert) {
+    return wert ? wert.replace('T', ' ').slice(0, 16) : '';
+}
+
 // "2026-10-10" bzw. "2026-10-10 – 2026-10-12" bei mehrtägigen Besuchen
 function zeitraum(datum, bis) {
     return bis && bis !== datum ? `${datum} – ${bis}` : (datum ?? '');
@@ -189,9 +194,15 @@ async function ladeAntraege() {
         }
         zeile.appendChild(statusZelle);
 
+        // Offen: Knöpfe zum Entscheiden, sonst wer wann entschieden hat
         const aktionen = document.createElement('td');
         if (antrag.status === 'OFFEN') {
             zeigeEntscheidungsKnoepfe(aktionen, antrag);
+        } else if (antrag.entschiedenVon) {
+            const zeitpunkt = document.createElement('span');
+            zeitpunkt.className = 'entschieden-am';
+            zeitpunkt.textContent = datumUhrzeit(antrag.entschiedenAm);
+            aktionen.append(antrag.entschiedenVon, document.createElement('br'), zeitpunkt);
         }
         zeile.appendChild(aktionen);
         tabelle.appendChild(zeile);

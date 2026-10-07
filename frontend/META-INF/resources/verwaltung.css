@@ -139,6 +139,12 @@ tbody tr:hover {
 .badge-angenommen { background-color: #12401f; color: #6ee38d; }
 .badge-abgelehnt  { background-color: #4d1414; color: #ff7b7b; }
 
+/* Zeitpunkt unter dem Namen, wer einen Antrag entschieden hat */
+.entschieden-am {
+    font-size: 0.85em;
+    color: #bbb;
+}
+
 /* Ankunftszeit fehlt noch (z. B. angenommener Antrag) */
 .zeit-fehlt {
     background-color: rgba(220, 40, 40, 0.2);
