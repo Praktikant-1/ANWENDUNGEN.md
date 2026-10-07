@@ -14,6 +14,7 @@ public class Antrag {
     private LocalDate von;
     private LocalDate bis;
     private Status status = Status.UNBESTAETIGT;
+    private String ablehnGrund;
 
     public Antrag() {
     }
@@ -80,5 +81,13 @@ public class Antrag {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getAblehnGrund() {
+        return ablehnGrund;
+    }
+
+    public void setAblehnGrund(String ablehnGrund) {
+        this.ablehnGrund = ablehnGrund;
     }
 }

@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 @ApplicationScoped
 public class MailService {
 
-    // Muss zum Countdown auf der Startseite passen
     static final int VERZOEGERUNG_SEKUNDEN = 30;
     static final int CODE_GUELTIG_MINUTEN = 10;
     static final int MAX_FEHLVERSUCHE = 5;
@@ -67,7 +66,7 @@ public class MailService {
         return false;
     }
 
-    public void entscheidungSenden(Antrag antrag, String ablehnGrund) {
+    public void entscheidungSenden(Antrag antrag) {
         boolean angenommen = antrag.getStatus() == Antrag.Status.ANGENOMMEN;
         StringBuilder text = new StringBuilder()
                 .append("Hello ").append(antrag.getName()).append(",\n\n")
@@ -75,8 +74,8 @@ public class MailService {
                 .append(" – ").append(antrag.getBis())
                 .append(angenommen ? " has been accepted." : " has been rejected.")
                 .append("\n");
-        if (!angenommen && ablehnGrund != null && !ablehnGrund.isBlank()) {
-            text.append("\nReason: ").append(ablehnGrund.trim()).append("\n");
+        if (!angenommen && antrag.getAblehnGrund() != null) {
+            text.append("\nReason: ").append(antrag.getAblehnGrund()).append("\n");
         }
         text.append("\nEXPass Visitor Management");
 

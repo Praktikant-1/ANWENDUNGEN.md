@@ -51,7 +51,7 @@
 <p id="meldung"></p>
 
 <form id="code-bereich" hidden>
-    <p id="countdown"></p>
+    <p id="code-hinweis"></p>
     <input name="code" placeholder="6-digit code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required>
     <button type="submit">Confirm</button>
     <button type="button" id="code-erneut">Send code again</button>
@@ -68,29 +68,13 @@
     bis.min = heute;
     von.addEventListener('change', () => bis.min = von.value || heute);
 
-    // Muss zu MailService.VERZOEGERUNG_SEKUNDEN passen
-    const VERZOEGERUNG_SEKUNDEN = 30;
     const meldung = document.getElementById('meldung');
     const codeBereich = document.getElementById('code-bereich');
-    const countdown = document.getElementById('countdown');
+    const hinweis = document.getElementById('code-hinweis');
     let email = null;
-    let timer = null;
 
-    // Startet bei jeder neuen Anfrage von vorn, genau wie das Debouncing im Backend
-    function starteCountdown() {
-        let rest = VERZOEGERUNG_SEKUNDEN;
-        clearInterval(timer);
-        const anzeigen = () => {
-            countdown.textContent = rest > 0
-                ? `A confirmation code will be sent to ${email} in ${rest} s.`
-                : `Code sent to ${email}. It is valid for 10 minutes.`;
-        };
-        anzeigen();
-        timer = setInterval(() => {
-            rest--;
-            anzeigen();
-            if (rest <= 0) clearInterval(timer);
-        }, 1000);
+    function zeigeCodeBereich() {
+        hinweis.textContent = `A confirmation code will be sent to ${email} shortly. It is valid for 10 minutes.`;
         codeBereich.hidden = false;
     }
 
@@ -109,7 +93,7 @@
             meldung.textContent = 'Request sent. Please confirm your e-mail address.';
             email = daten.email;
             event.target.reset();
-            starteCountdown();
+            zeigeCodeBereich();
         } else {
             meldung.textContent = 'Error: request could not be sent.';
         }
@@ -121,7 +105,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
         });
-        starteCountdown();
+        zeigeCodeBereich();
     });
 
     codeBereich.addEventListener('submit', async (event) => {
@@ -135,7 +119,6 @@
         });
 
         if (antwort.ok) {
-            clearInterval(timer);
             event.target.reset();
             codeBereich.hidden = true;
             meldung.textContent = 'E-mail confirmed. Your request will now be reviewed.';

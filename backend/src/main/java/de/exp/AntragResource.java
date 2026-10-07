@@ -23,8 +23,16 @@ public class AntragResource {
     public record CodeAnfrage(String email, String code) {
     }
 
+    public record Ablehnung(String grund) {
+    }
+
+    static final int MAX_LAENGE_ABLEHNGRUND = 500;
+
     @Inject
     MailService mailService;
+
+    @Inject
+    BesucherService besucherService;
 
     private final List<Antrag> antraege = new CopyOnWriteArrayList<>();
     private final AtomicLong naechsteId = new AtomicLong(1);
@@ -55,6 +63,7 @@ public class AntragResource {
         antrag.setId(naechsteId.getAndIncrement());
         antrag.setEmail(MailService.normalisieren(antrag.getEmail()));
         antrag.setStatus(Antrag.Status.UNBESTAETIGT);
+        antrag.setAblehnGrund(null);
         antraege.add(antrag);
         mailService.codeAnfordern(antrag.getEmail());
         return antrag;
@@ -99,9 +108,12 @@ public class AntragResource {
     @POST
     @RolesAllowed("admin")
     @Path("/{id}/ablehnen")
-    public Antrag ablehnen(@PathParam("id") long id) {
-        // Den optionalen Ablehngrund hier übergeben, sobald es das Feld gibt
-        return entscheiden(id, Antrag.Status.ABGELEHNT, null);
+    public Antrag ablehnen(@PathParam("id") long id, Ablehnung ablehnung) {
+        String grund = ablehnung == null || leer(ablehnung.grund()) ? null : ablehnung.grund().trim();
+        if (grund != null && grund.length() > MAX_LAENGE_ABLEHNGRUND) {
+            throw new BadRequestException("Ablehngrund ist zu lang (max. " + MAX_LAENGE_ABLEHNGRUND + " Zeichen)");
+        }
+        return entscheiden(id, Antrag.Status.ABGELEHNT, grund);
     }
 
     private Antrag entscheiden(long id, Antrag.Status status, String ablehnGrund) {
@@ -113,13 +125,26 @@ public class AntragResource {
             throw new ClientErrorException("Antrag wurde bereits entschieden", Response.Status.CONFLICT);
         }
         antrag.setStatus(status);
+        antrag.setAblehnGrund(ablehnGrund);
+        if (status == Antrag.Status.ANGENOMMEN) {
+            besucherService.hinzufuegen(alsBesucher(antrag));
+        }
         try {
-            mailService.entscheidungSenden(antrag, ablehnGrund);
+            mailService.entscheidungSenden(antrag);
         } catch (RuntimeException e) {
             // Die Entscheidung bleibt gültig, auch wenn die Mail nicht rausgeht
             Log.errorf(e, "Entscheidungs-Mail für Antrag %d konnte nicht gesendet werden", id);
         }
         return antrag;
+    }
+
+    // Ankunftszeit bleibt leer, bis der Besucher tatsächlich da ist
+    private static Besucher alsBesucher(Antrag antrag) {
+        Besucher besucher = new Besucher();
+        besucher.setName(antrag.getName());
+        besucher.setFirma(antrag.getFirma());
+        besucher.setGrund(antrag.getGrund());
+        return besucher;
     }
 
     private boolean hatUnbestaetigte(String adresse) {
