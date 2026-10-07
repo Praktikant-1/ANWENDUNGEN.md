@@ -1,4 +1,4 @@
-package de.exp;
+package de.exp.account;
 
 // Daten aus dem Formular "Create account" (mit Passwort im Klartext)
 public class NeuerAccount {

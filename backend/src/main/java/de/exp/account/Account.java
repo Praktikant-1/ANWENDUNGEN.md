@@ -1,4 +1,4 @@
-package de.exp;
+package de.exp.account;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

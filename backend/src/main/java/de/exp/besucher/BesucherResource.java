@@ -1,4 +1,4 @@
-package de.exp;
+package de.exp.besucher;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;

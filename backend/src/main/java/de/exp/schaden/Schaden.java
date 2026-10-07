@@ -1,4 +1,4 @@
-package de.exp;
+package de.exp.schaden;
 
 import java.time.LocalDate;
 

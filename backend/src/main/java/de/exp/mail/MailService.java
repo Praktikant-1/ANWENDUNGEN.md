@@ -1,5 +1,6 @@
-package de.exp;
+package de.exp.mail;
 
+import de.exp.antrag.Antrag;
 import io.quarkus.logging.Log;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
@@ -100,7 +101,7 @@ public class MailService {
         }
     }
 
-    static String normalisieren(String email) {
+    public static String normalisieren(String email) {
         return email.trim().toLowerCase();
     }
 
