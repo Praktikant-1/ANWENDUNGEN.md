@@ -68,6 +68,17 @@
     </dependencies>
 
     <build>
+        <resources>
+            <!-- Backend: application.properties usw. -->
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- Frontend: die Webseiten aus ../frontend/META-INF/resources liefert Quarkus unter / aus.
+                 Kein targetPath, weil quarkus:dev den beim Live-Neuladen ignoriert. -->
+            <resource>
+                <directory>../frontend</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
