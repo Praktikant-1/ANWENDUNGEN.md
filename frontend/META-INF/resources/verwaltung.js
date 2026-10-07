@@ -48,14 +48,14 @@ function ankunftZelle(besucher) {
     zelle.classList.add('zeit-fehlt');
     const hinweis = document.createElement('span');
     hinweis.className = 'zeit-fehlt-hinweis';
-    hinweis.textContent = 'Arrival time missing';
+    hinweis.textContent = t('verwaltung.ankunftFehlt');
     zelle.appendChild(hinweis);
 
     const feld = document.createElement('input');
     feld.type = 'time';
-    feld.title = 'Leave empty for current time';
+    feld.title = t('zeit.leer');
     const knopf = document.createElement('button');
-    knopf.textContent = 'Check in';
+    knopf.textContent = t('verwaltung.einchecken');
     knopf.addEventListener('click', async () => {
         const antwort = await fetch(`/besucher/${besucher.id}/ankunft`, {
             method: 'POST',
@@ -63,7 +63,7 @@ function ankunftZelle(besucher) {
             body: JSON.stringify(feld.value ? { ankunft: feld.value } : {})
         });
         if (zumLoginWennAbgelaufen(antwort)) return;
-        zeigeMeldung('besucher-meldung', antwort.ok ? '' : 'Error: arrival could not be saved.', !antwort.ok);
+        zeigeMeldung('besucher-meldung', antwort.ok ? '' : t('verwaltung.fehlerAnkunft'), !antwort.ok);
         ladeBesucher();
     });
     zelle.append(feld, knopf);
@@ -84,9 +84,9 @@ function austrittZelle(besucher) {
 
     const feld = document.createElement('input');
     feld.type = 'time';
-    feld.title = 'Leave empty for current time';
+    feld.title = t('zeit.leer');
     const knopf = document.createElement('button');
-    knopf.textContent = 'Check out';
+    knopf.textContent = t('verwaltung.auschecken');
     knopf.addEventListener('click', async () => {
         const antwort = await fetch(`/besucher/${besucher.id}/austritt`, {
             method: 'POST',
@@ -94,7 +94,7 @@ function austrittZelle(besucher) {
             body: JSON.stringify(feld.value ? { austritt: feld.value } : {})
         });
         if (zumLoginWennAbgelaufen(antwort)) return;
-        zeigeMeldung('besucher-meldung', antwort.ok ? '' : 'Error: departure must not be before arrival.', !antwort.ok);
+        zeigeMeldung('besucher-meldung', antwort.ok ? '' : t('verwaltung.fehlerAustritt'), !antwort.ok);
         ladeBesucher();
     });
     zelle.append(feld, knopf);
@@ -106,7 +106,7 @@ async function ladeBesucher() {
     const antwort = await fetch('/besucher');
     if (zumLoginWennAbgelaufen(antwort)) return;
     if (!antwort.ok) {
-        tabelle.innerHTML = '<tr><td colspan="6">No permission to see visitors.</td></tr>';
+        tabelle.innerHTML = `<tr><td colspan="6">${t('verwaltung.keineRechteBesucher')}</td></tr>`;
         return;
     }
     const besucherListe = await antwort.json();
@@ -114,7 +114,7 @@ async function ladeBesucher() {
     tabelle.innerHTML = '';
 
     if (besucherListe.length === 0) {
-        tabelle.innerHTML = '<tr><td colspan="6">No visitors yet.</td></tr>';
+        tabelle.innerHTML = `<tr><td colspan="6">${t('verwaltung.keineBesucher')}</td></tr>`;
         return;
     }
 
@@ -146,24 +146,22 @@ document.getElementById('besucher-formular').addEventListener('submit', async (e
     if (zumLoginWennAbgelaufen(antwort)) return;
 
     if (antwort.ok) {
-        zeigeMeldung('meldung', 'Visitor added.', false);
+        zeigeMeldung('meldung', t('verwaltung.besucherHinzugefuegt'), false);
         event.target.reset();
         ladeBesucher();
     } else {
-        zeigeMeldung('meldung', 'Error: visitor could not be saved.', true);
+        zeigeMeldung('meldung', t('verwaltung.fehlerBesucher'), true);
     }
 });
 
 ladeBesucher();
-
-const statusText = { OFFEN: 'Open', ANGENOMMEN: 'Accepted', ABGELEHNT: 'Rejected' };
 
 async function ladeAntraege() {
     const tabelle = document.getElementById('antrag-tabelle');
     const antwort = await fetch('/antraege');
     if (zumLoginWennAbgelaufen(antwort)) return;
     if (!antwort.ok) {
-        tabelle.innerHTML = '<tr><td colspan="8">No permission to see requests.</td></tr>';
+        tabelle.innerHTML = `<tr><td colspan="8">${t('verwaltung.keineRechteAntraege')}</td></tr>`;
         return;
     }
     const antraege = await antwort.json();
@@ -171,7 +169,7 @@ async function ladeAntraege() {
     tabelle.innerHTML = '';
 
     if (antraege.length === 0) {
-        tabelle.innerHTML = '<tr><td colspan="8">No requests yet.</td></tr>';
+        tabelle.innerHTML = `<tr><td colspan="8">${t('verwaltung.keineAntraege')}</td></tr>`;
         return;
     }
 
@@ -187,7 +185,7 @@ async function ladeAntraege() {
         const statusZelle = document.createElement('td');
         const badge = document.createElement('span');
         badge.className = 'badge badge-' + antrag.status.toLowerCase();
-        badge.textContent = statusText[antrag.status];
+        badge.textContent = t('status.' + antrag.status);
         statusZelle.appendChild(badge);
         if (antrag.ablehnGrund) {
             statusZelle.append(' ' + antrag.ablehnGrund);
@@ -224,28 +222,28 @@ async function entscheiden(antrag, aktion, ablehnGrund) {
     }
     const antwort = await fetch(`/antraege/${antrag.id}/${aktion}`, optionen);
     if (zumLoginWennAbgelaufen(antwort)) return;
-    const text = antwort.status === 403 ? 'Only admins can accept or reject requests.'
-        : antwort.ok ? '' : 'Error: decision could not be saved.';
+    const text = antwort.status === 403 ? t('verwaltung.nurAdmins')
+        : antwort.ok ? '' : t('verwaltung.fehlerEntscheidung');
     zeigeMeldung('antrag-meldung', text, !antwort.ok);
     ladeAntraege();
 }
 
 function zeigeEntscheidungsKnoepfe(aktionen, antrag) {
     aktionen.replaceChildren(
-        knopf('Accept', () => entscheiden(antrag, 'annehmen')),
-        knopf('Reject', () => zeigeAblehnFeld(aktionen, antrag))
+        knopf(t('verwaltung.annehmen'), () => entscheiden(antrag, 'annehmen')),
+        knopf(t('verwaltung.ablehnen'), () => zeigeAblehnFeld(aktionen, antrag))
     );
 }
 
 // Beim Ablehnen kann ein optionaler Grund angegeben werden, der per Mail an den Besucher geht
 function zeigeAblehnFeld(aktionen, antrag) {
     const grund = document.createElement('input');
-    grund.placeholder = 'Reason (optional)';
+    grund.placeholder = t('verwaltung.grundOptional');
     grund.maxLength = 500;
     aktionen.replaceChildren(
         grund,
-        knopf('Confirm', () => entscheiden(antrag, 'ablehnen', grund.value)),
-        knopf('Cancel', () => zeigeEntscheidungsKnoepfe(aktionen, antrag))
+        knopf(t('bestaetigen'), () => entscheiden(antrag, 'ablehnen', grund.value)),
+        knopf(t('abbrechen'), () => zeigeEntscheidungsKnoepfe(aktionen, antrag))
     );
     grund.focus();
 }
@@ -267,14 +265,14 @@ async function ladeSchaeden() {
     const antwort = await fetch('/schaeden');
     if (zumLoginWennAbgelaufen(antwort)) return;
     if (!antwort.ok) {
-        tabelle.innerHTML = '<tr><td colspan="4">No permission to see damages.</td></tr>';
+        tabelle.innerHTML = `<tr><td colspan="4">${t('verwaltung.keineRechteSchaeden')}</td></tr>`;
         return;
     }
     const schaeden = await antwort.json();
 
     tabelle.innerHTML = '';
     if (schaeden.length === 0) {
-        tabelle.innerHTML = '<tr><td colspan="4">No damages reported.</td></tr>';
+        tabelle.innerHTML = `<tr><td colspan="4">${t('verwaltung.keineSchaeden')}</td></tr>`;
         return;
     }
 
@@ -338,7 +336,7 @@ function sucheAnwenden() {
             if (passt) treffer++;
         }
     }
-    document.getElementById('treffer').textContent = woerter.length ? treffer === 1 ? '1 match' : `${treffer} matches` : '';
+    document.getElementById('treffer').textContent = woerter.length ? treffer === 1 ? t('treffer.eins') : t('treffer.viele', { n: treffer }) : '';
 }
 
 suchFeld.addEventListener('input', sucheAnwenden);
@@ -375,9 +373,17 @@ schadenFormular.addEventListener('submit', async (event) => {
 
     if (antwort.ok) {
         schadenDialog.close();
-        zeigeMeldung('schaden-meldung', 'Damage reported.', false);
+        zeigeMeldung('schaden-meldung', t('schaden.gemeldet'), false);
         ladeSchaeden();
     } else {
-        zeigeMeldung('schaden-dialog-meldung', 'Error: damage could not be reported.', true);
+        zeigeMeldung('schaden-dialog-meldung', t('schaden.fehler'), true);
     }
+});
+
+// Sprache gewechselt: Tabellen und Trefferzahl in der neuen Sprache neu aufbauen
+document.addEventListener('sprachwechsel', () => {
+    ladeBesucher();
+    ladeAntraege();
+    ladeSchaeden();
+    sucheAnwenden();
 });

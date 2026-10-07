@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>EXPass – Accounts</title>
+    <title data-i18n="accounts.seitentitel">EXPass – Accounts</title>
     <link rel="stylesheet" href="/style.css">
     <style>
         a {
@@ -51,42 +51,44 @@
     </style>
 </head>
 <body>
-<h1>EXPass – Accounts</h1>
-<p><a href="/verwaltung.html">Back to visitor management</a></p>
+<div class="sprachwahl oben-rechts"></div>
+<h1 data-i18n="accounts.seitentitel">EXPass – Accounts</h1>
+<p><a href="/verwaltung.html" data-i18n="accounts.zurueck">Back to visitor management</a></p>
 
-<h2>Create account</h2>
+<h2 data-i18n="accounts.erstellenTitel">Create account</h2>
 <form id="account-formular">
-    <input name="benutzername" placeholder="Username" required>
-    <input name="passwort" type="password" placeholder="Password (min. 8 characters)" minlength="8" required>
+    <input name="benutzername" placeholder="Username" data-i18n-placeholder="feld.benutzername" required>
+    <input name="passwort" type="password" placeholder="Password (min. 8 characters)" data-i18n-placeholder="accounts.passwort" minlength="8" required>
     <select name="rolle">
-        <option value="MITARBEITER">Employee</option>
-        <option value="VERWALTUNG">Administration</option>
+        <option value="MITARBEITER" data-i18n="rolle.MITARBEITER">Employee</option>
+        <option value="VERWALTUNG" data-i18n="rolle.VERWALTUNG">Administration</option>
     </select>
-    <label><input name="admin" type="checkbox"> Admin (only for administration)</label>
-    <button type="submit">Create</button>
+    <label><input name="admin" type="checkbox"> <span data-i18n="accounts.adminCheckbox">Admin (only for administration)</span></label>
+    <button type="submit" data-i18n="accounts.erstellen">Create</button>
 </form>
 <p id="meldung"></p>
 
-<h2>All accounts</h2>
+<h2 data-i18n="accounts.alleTitel">All accounts</h2>
 <div class="suche">
     <input type="search" id="account-suche" placeholder="Search accounts…"
-           title="Searches username, role and admin. Several words narrow the result, e.g. admin yes">
+           title="Searches username, role and admin. Several words narrow the result, e.g. admin yes"
+           data-i18n-placeholder="accounts.suche" data-i18n-title="accounts.sucheTitel">
     <span id="account-treffer"></span>
 </div>
 <table>
     <thead>
     <tr>
-        <th>Username</th>
-        <th>Role</th>
-        <th>Admin</th>
+        <th data-i18n="feld.benutzername">Username</th>
+        <th data-i18n="spalte.rolle">Role</th>
+        <th data-i18n="spalte.admin">Admin</th>
         <th></th>
     </tr>
     </thead>
     <tbody id="account-tabelle"></tbody>
 </table>
 
+<script src="/sprache.js"></script>
 <script>
-    const rollenText = { MITARBEITER: 'Employee', VERWALTUNG: 'Administration' };
     const meldung = document.getElementById('meldung');
     let ich = '';
 
@@ -101,7 +103,7 @@
 
     async function zeigeFehler(antwort) {
         const text = await antwort.text();
-        meldung.textContent = 'Error: ' + (text || antwort.status);
+        meldung.textContent = t('accounts.fehler', { text: text ? tServer(text) : antwort.status });
     }
 
     async function ladeAccounts() {
@@ -109,7 +111,7 @@
         const antwort = await fetch('/accounts');
         if (zumLoginWennAbgelaufen(antwort)) return;
         if (!antwort.ok) {
-            tabelle.innerHTML = '<tr><td colspan="4">No permission to see accounts.</td></tr>';
+            tabelle.innerHTML = `<tr><td colspan="4">${t('accounts.keineRechte')}</td></tr>`;
             return;
         }
         const accounts = await antwort.json();
@@ -119,7 +121,7 @@
         tabelle.innerHTML = '';
         for (const account of accounts) {
             const zeile = document.createElement('tr');
-            for (const wert of [account.benutzername, rollenText[account.rolle], account.admin ? 'Yes' : 'No']) {
+            for (const wert of [account.benutzername, t('rolle.' + account.rolle), account.admin ? t('ja') : t('nein')]) {
                 const zelle = document.createElement('td');
                 zelle.textContent = wert;
                 zeile.appendChild(zelle);
@@ -127,21 +129,21 @@
 
             const aktionen = document.createElement('td');
             if (account.benutzername === ich) {
-                aktionen.textContent = '(you)';
+                aktionen.textContent = t('accounts.du');
             } else {
                 const knoepfe = [];
                 if (account.rolle === 'VERWALTUNG') {
                     knoepfe.push(account.admin
-                        ? ['Remove admin', 'POST', `/accounts/${encodeURIComponent(account.benutzername)}/admin-entziehen`]
-                        : ['Make admin', 'POST', `/accounts/${encodeURIComponent(account.benutzername)}/admin-geben`]);
+                        ? [t('accounts.adminEntziehen'), 'POST', `/accounts/${encodeURIComponent(account.benutzername)}/admin-entziehen`]
+                        : [t('accounts.adminGeben'), 'POST', `/accounts/${encodeURIComponent(account.benutzername)}/admin-geben`]);
                 }
-                knoepfe.push(['Delete', 'DELETE', `/accounts/${encodeURIComponent(account.benutzername)}`]);
+                knoepfe.push([t('accounts.loeschen'), 'DELETE', `/accounts/${encodeURIComponent(account.benutzername)}`]);
 
                 for (const [text, methode, url] of knoepfe) {
                     const knopf = document.createElement('button');
                     knopf.textContent = text;
                     knopf.addEventListener('click', async () => {
-                        if (methode === 'DELETE' && !confirm(`Delete account "${account.benutzername}"?`)) return;
+                        if (methode === 'DELETE' && !confirm(t('accounts.loeschenFrage', { name: account.benutzername }))) return;
                         const antwort = await fetch(url, { method: methode });
                         if (zumLoginWennAbgelaufen(antwort)) return;
                         if (antwort.ok) {
@@ -172,7 +174,7 @@
             if (passt) treffer++;
         }
         document.getElementById('account-treffer').textContent =
-            woerter.length ? (treffer === 1 ? '1 match' : `${treffer} matches`) : '';
+            woerter.length ? (treffer === 1 ? t('treffer.eins') : t('treffer.viele', { n: treffer })) : '';
     }
 
     document.getElementById('account-suche').addEventListener('input', sucheAnwenden);
@@ -195,7 +197,7 @@
         if (zumLoginWennAbgelaufen(antwort)) return;
 
         if (antwort.ok) {
-            meldung.textContent = 'Account created.';
+            meldung.textContent = t('accounts.erstellt');
             formular.reset();
             ladeAccounts();
         } else {
@@ -213,6 +215,9 @@
     }
 
     start();
+
+    // Sprache gewechselt: Tabelle in der neuen Sprache neu aufbauen
+    document.addEventListener('sprachwechsel', ladeAccounts);
 </script>
 </body>
 </html>
