@@ -20,12 +20,69 @@
             border-collapse: collapse;
         }
 
+        /* Breite Tabellen auf dem Handy seitlich scrollbar statt die ganze Seite zu verkleinern */
+        .tabelle-scroll {
+            overflow-x: auto;
+            max-width: 100%;
+        }
         th, td {
             border: 1px solid white;
             padding: 8px 16px;
         }
         a {
             color: darkorange;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        h2 {
+            scroll-margin-top: 16px;
+        }
+        /* Schnellwahl: am linken Rand fixiert, auf schmalen Bildschirmen oben als Leiste */
+        .schnellwahl {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            width: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            text-align: left;
+            background-color: #1a1a1a;
+            border: 1px solid darkorange;
+        }
+        .schnellwahl input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #treffer {
+            font-size: 0.85em;
+            color: #bbb;
+        }
+        body {
+            padding-left: 200px;
+        }
+        @media (max-width: 900px) {
+            body {
+                padding-left: 0;
+            }
+            .schnellwahl {
+                position: sticky;
+                top: 0;
+                width: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                z-index: 1;
+            }
+            .schnellwahl input {
+                width: auto;
+                flex: 1 1 100%;
+            }
+            h2 {
+                scroll-margin-top: 110px;
+            }
         }
         .logout {
             padding: 8px 16px;
@@ -37,6 +94,15 @@
     </style>
 </head>
 <body>
+<nav class="schnellwahl">
+    <input type="search" id="suche" placeholder="Search…" title="Searches all lists. Several words narrow the result, e.g. ACME 2026-10">
+    <span id="treffer"></span>
+    <a href="#bereich-hinzufuegen">Add visitor</a>
+    <a href="#bereich-antraege">Requests</a>
+    <a href="#bereich-schaeden">Damages</a>
+    <a href="#bereich-besucher">Visitors</a>
+</nav>
+
 <h1>EXPass – Visitor Management</h1>
 
 <form action="/logout" method="post">
@@ -44,11 +110,12 @@
 </form>
 <p id="accounts-link" hidden><a href="/accounts.html">Manage accounts</a></p>
 
-<h2>Add visitor</h2>
+<h2 id="bereich-hinzufuegen">Add visitor</h2>
 <form id="besucher-formular">
     <input name="name" placeholder="Name" required>
     <input name="firma" placeholder="Company">
     <input name="grund" placeholder="Reason for visit">
+    <input name="datum" type="date" required>
     <input name="ankunft" type="time">
     <button type="submit">Add</button>
     <button type="button" id="jetzt">Now</button>
@@ -57,12 +124,14 @@
 
 <p id="meldung"></p>
 
-<h2>Requests</h2>
+<h2 id="bereich-antraege">Requests</h2>
 <p id="antrag-meldung"></p>
+<div class="tabelle-scroll">
 <table>
     <thead>
     <tr>
         <th>Name</th>
+        <th>E-mail</th>
         <th>Company</th>
         <th>Reason</th>
         <th>From</th>
@@ -73,8 +142,10 @@
     </thead>
     <tbody id="antrag-tabelle"></tbody>
 </table>
+</div>
 
-<h2>Damages</h2>
+<h2 id="bereich-schaeden">Damages</h2>
+<div class="tabelle-scroll">
 <table>
     <thead>
     <tr>
@@ -86,11 +157,14 @@
     </thead>
     <tbody id="schaden-tabelle"></tbody>
 </table>
+</div>
 
-<h2>Visitors</h2>
+<h2 id="bereich-besucher">Visitors</h2>
+<div class="tabelle-scroll">
 <table>
     <thead>
     <tr>
+        <th>Date</th>
         <th>Name</th>
         <th>Company</th>
         <th>Reason</th>
@@ -100,6 +174,7 @@
     </thead>
     <tbody id="besucher-tabelle"></tbody>
 </table>
+</div>
 <p id="besucher-meldung"></p>
 
 <script>
@@ -117,11 +192,48 @@
         return wert ? wert.slice(0, 5) : '';
     }
 
+    // "2026-10-10" bzw. "2026-10-10 – 2026-10-12" bei mehrtägigen Besuchen
+    function zeitraum(datum, bis) {
+        return bis && bis !== datum ? `${datum} – ${bis}` : (datum ?? '');
+    }
+
+    // Ankunftszeit anzeigen oder, wenn noch keine da ist, nachträglich erfassen
+    function ankunftZelle(besucher) {
+        const zelle = document.createElement('td');
+        if (besucher.ankunft) {
+            zelle.textContent = uhrzeit(besucher.ankunft);
+            return zelle;
+        }
+
+        const feld = document.createElement('input');
+        feld.type = 'time';
+        feld.title = 'Leave empty for current time';
+        const knopf = document.createElement('button');
+        knopf.textContent = 'Check in';
+        knopf.addEventListener('click', async () => {
+            const meldung = document.getElementById('besucher-meldung');
+            const antwort = await fetch(`/besucher/${besucher.id}/ankunft`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(feld.value ? { ankunft: feld.value } : {})
+            });
+            if (zumLoginWennAbgelaufen(antwort)) return;
+            meldung.textContent = antwort.ok ? '' : 'Error: arrival could not be saved.';
+            ladeBesucher();
+        });
+        zelle.append(feld, knopf);
+        return zelle;
+    }
+
     // Austrittszeit anzeigen oder, wenn noch keine da ist, nachträglich erfassen
     function austrittZelle(besucher) {
         const zelle = document.createElement('td');
         if (besucher.austritt) {
             zelle.textContent = uhrzeit(besucher.austritt);
+            return zelle;
+        }
+        // Auschecken erst nach dem Einchecken
+        if (!besucher.ankunft) {
             return zelle;
         }
 
@@ -150,7 +262,7 @@
         const antwort = await fetch('/besucher');
         if (zumLoginWennAbgelaufen(antwort)) return;
         if (!antwort.ok) {
-            tabelle.innerHTML = '<tr><td colspan="4">No permission to see visitors.</td></tr>';
+            tabelle.innerHTML = '<tr><td colspan="6">No permission to see visitors.</td></tr>';
             return;
         }
         const besucherListe = await antwort.json();
@@ -158,17 +270,18 @@
         tabelle.innerHTML = '';
 
         if (besucherListe.length === 0) {
-            tabelle.innerHTML = '<tr><td colspan="5">No visitors yet.</td></tr>';
+            tabelle.innerHTML = '<tr><td colspan="6">No visitors yet.</td></tr>';
             return;
         }
 
         for (const besucher of besucherListe) {
             const zeile = document.createElement('tr');
-            for (const wert of [besucher.name, besucher.firma, besucher.grund, uhrzeit(besucher.ankunft)]) {
+            for (const wert of [zeitraum(besucher.datum, besucher.bis), besucher.name, besucher.firma, besucher.grund]) {
                 const zelle = document.createElement('td');
                 zelle.textContent = wert ?? '';
                 zeile.appendChild(zelle);
             }
+            zeile.appendChild(ankunftZelle(besucher));
             zeile.appendChild(austrittZelle(besucher));
             tabelle.appendChild(zeile);
         }
@@ -206,7 +319,7 @@
         const antwort = await fetch('/antraege');
         if (zumLoginWennAbgelaufen(antwort)) return;
         if (!antwort.ok) {
-            tabelle.innerHTML = '<tr><td colspan="7">No permission to see requests.</td></tr>';
+            tabelle.innerHTML = '<tr><td colspan="8">No permission to see requests.</td></tr>';
             return;
         }
         const antraege = await antwort.json();
@@ -214,13 +327,16 @@
         tabelle.innerHTML = '';
 
         if (antraege.length === 0) {
-            tabelle.innerHTML = '<tr><td colspan="7">No requests yet.</td></tr>';
+            tabelle.innerHTML = '<tr><td colspan="8">No requests yet.</td></tr>';
             return;
         }
 
         for (const antrag of antraege) {
             const zeile = document.createElement('tr');
-            for (const wert of [antrag.name, antrag.firma, antrag.grund, antrag.von, antrag.bis, statusText[antrag.status]]) {
+            const status = antrag.ablehnGrund
+                ? `${statusText[antrag.status]}: ${antrag.ablehnGrund}`
+                : statusText[antrag.status];
+            for (const wert of [antrag.name, antrag.email, antrag.firma, antrag.grund, antrag.von, antrag.bis, status]) {
                 const zelle = document.createElement('td');
                 zelle.textContent = wert ?? '';
                 zeile.appendChild(zelle);
@@ -228,22 +344,52 @@
 
             const aktionen = document.createElement('td');
             if (antrag.status === 'OFFEN') {
-                for (const [text, aktion] of [['Accept', 'annehmen'], ['Reject', 'ablehnen']]) {
-                    const knopf = document.createElement('button');
-                    knopf.textContent = text;
-                    knopf.addEventListener('click', async () => {
-                        const antwort = await fetch(`/antraege/${antrag.id}/${aktion}`, { method: 'POST' });
-                        if (zumLoginWennAbgelaufen(antwort)) return;
-                        document.getElementById('antrag-meldung').textContent =
-                            antwort.status === 403 ? 'Only admins can accept or reject requests.' : '';
-                        ladeAntraege();
-                    });
-                    aktionen.appendChild(knopf);
-                }
+                zeigeEntscheidungsKnoepfe(aktionen, antrag);
             }
             zeile.appendChild(aktionen);
             tabelle.appendChild(zeile);
         }
+    }
+
+    function knopf(text, beimKlick) {
+        const element = document.createElement('button');
+        element.textContent = text;
+        element.addEventListener('click', beimKlick);
+        return element;
+    }
+
+    async function entscheiden(antrag, aktion, ablehnGrund) {
+        const optionen = { method: 'POST' };
+        if (aktion === 'ablehnen') {
+            optionen.headers = { 'Content-Type': 'application/json' };
+            optionen.body = JSON.stringify({ grund: ablehnGrund });
+        }
+        const antwort = await fetch(`/antraege/${antrag.id}/${aktion}`, optionen);
+        if (zumLoginWennAbgelaufen(antwort)) return;
+        document.getElementById('antrag-meldung').textContent =
+            antwort.status === 403 ? 'Only admins can accept or reject requests.'
+                : antwort.ok ? '' : 'Error: decision could not be saved.';
+        ladeAntraege();
+    }
+
+    function zeigeEntscheidungsKnoepfe(aktionen, antrag) {
+        aktionen.replaceChildren(
+            knopf('Accept', () => entscheiden(antrag, 'annehmen')),
+            knopf('Reject', () => zeigeAblehnFeld(aktionen, antrag))
+        );
+    }
+
+    // Beim Ablehnen kann ein optionaler Grund angegeben werden, der per Mail an den Besucher geht
+    function zeigeAblehnFeld(aktionen, antrag) {
+        const grund = document.createElement('input');
+        grund.placeholder = 'Reason (optional)';
+        grund.maxLength = 500;
+        aktionen.replaceChildren(
+            grund,
+            knopf('Confirm', () => entscheiden(antrag, 'ablehnen', grund.value)),
+            knopf('Cancel', () => zeigeEntscheidungsKnoepfe(aktionen, antrag))
+        );
+        grund.focus();
     }
 
     ladeAntraege();
@@ -291,6 +437,48 @@
               document.querySelector('[name="ankunft"]').value =
                   new Date().toTimeString().slice(0, 5);
           });
+
+    // Datum im Formular mit heute vorbelegen (auch nach dem Zurücksetzen)
+    const datumFeld = document.querySelector('[name="datum"]');
+    const heute = () => new Date().toLocaleDateString('sv');
+    datumFeld.value = heute();
+    document.getElementById('besucher-formular').addEventListener('reset', () => {
+        setTimeout(() => datumFeld.value = heute());
+    });
+
+    // Suche über alle Listen: Jedes Wort muss in irgendeiner Spalte der Zeile vorkommen
+    const suchFeld = document.getElementById('suche');
+    const tabellen = ['antrag-tabelle', 'schaden-tabelle', 'besucher-tabelle'].map(id => document.getElementById(id));
+
+    function suchtext(zeile) {
+        // Zellen mit Eingabefeldern/Knöpfen (Check in, Accept …) zählen nicht mit
+        return Array.from(zeile.cells)
+            .filter(zelle => !zelle.querySelector('input, button'))
+            .map(zelle => zelle.textContent)
+            .join(' ')
+            .toLowerCase();
+    }
+
+    function sucheAnwenden() {
+        const woerter = suchFeld.value.toLowerCase().split(/\s+/).filter(Boolean);
+        let treffer = 0;
+        for (const tabelle of tabellen) {
+            for (const zeile of tabelle.rows) {
+                // Hinweiszeilen wie "No visitors yet." immer zeigen
+                if (zeile.cells.length === 1) continue;
+                const text = suchtext(zeile);
+                const passt = woerter.every(wort => text.includes(wort));
+                zeile.hidden = !passt;
+                if (passt) treffer++;
+            }
+        }
+        document.getElementById('treffer').textContent = woerter.length ? treffer === 1 ? '1 match' : `${treffer} matches` : '';
+    }
+
+    suchFeld.addEventListener('input', sucheAnwenden);
+    // Listen werden nachgeladen (z. B. nach Accept/Check in) – dann Suche erneut anwenden
+    const beobachter = new MutationObserver(sucheAnwenden);
+    tabellen.forEach(tabelle => beobachter.observe(tabelle, { childList: true }));
 </script>
 </body>
 </html>

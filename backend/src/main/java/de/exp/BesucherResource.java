@@ -1,37 +1,50 @@
 package de.exp;
 
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.core.Response;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Path("/besucher")
 public class BesucherResource {
 
-    private final List<Besucher> besucherListe = new CopyOnWriteArrayList<>();
-    private final AtomicLong naechsteId = new AtomicLong(1);
+    @Inject
+    BesucherService besucherService;
 
     @GET
     @RolesAllowed("verwaltung")
     public List<Besucher> alle() {
-        return besucherListe;
+        return besucherService.alle();
     }
 
     @POST
     @RolesAllowed("verwaltung")
     public Besucher hinzufuegen(Besucher besucher) {
-        besucher.setId(naechsteId.getAndIncrement());
-        besucher.setAustritt(null);
-        besucherListe.add(besucher);
+        return besucherService.hinzufuegen(besucher);
+    }
+
+    // Ankunftszeit nachträglich erfassen, z. B. {"ankunft": "09:15"}.
+    // Ohne Zeit wird die aktuelle Uhrzeit genommen.
+    @POST
+    @Path("/{id}/ankunft")
+    @RolesAllowed("verwaltung")
+    public Besucher ankunftErfassen(@PathParam("id") long id, Besucher daten) {
+        Besucher besucher = besucherService.finde(id);
+        if (besucher.getAnkunft() != null) {
+            throw new ClientErrorException("Ankunft ist bereits erfasst", Response.Status.CONFLICT);
+        }
+        besucher.setAnkunft(daten != null && daten.getAnkunft() != null
+                ? daten.getAnkunft()
+                : LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
         return besucher;
     }
 
@@ -41,15 +54,15 @@ public class BesucherResource {
     @Path("/{id}/austritt")
     @RolesAllowed("verwaltung")
     public Besucher austrittErfassen(@PathParam("id") long id, Besucher daten) {
-        Besucher besucher = besucherListe.stream()
-                .filter(b -> b.getId() == id)
-                .findFirst()
-                .orElseThrow(NotFoundException::new);
+        Besucher besucher = besucherService.finde(id);
 
         LocalTime austritt = daten != null && daten.getAustritt() != null
                 ? daten.getAustritt()
                 : LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
-        if (besucher.getAnkunft() != null && austritt.isBefore(besucher.getAnkunft())) {
+        if (besucher.getAnkunft() == null) {
+            throw new BadRequestException("Besucher ist noch nicht angekommen");
+        }
+        if (austritt.isBefore(besucher.getAnkunft())) {
             throw new BadRequestException("Austritt liegt vor der Ankunft");
         }
         besucher.setAustritt(austritt);

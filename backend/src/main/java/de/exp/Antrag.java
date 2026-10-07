@@ -4,15 +4,17 @@ import java.time.LocalDate;
 
 public class Antrag {
 
-    public enum Status { OFFEN, ANGENOMMEN, ABGELEHNT }
+    public enum Status { UNBESTAETIGT, OFFEN, ANGENOMMEN, ABGELEHNT }
 
     private long id;
     private String name;
+    private String email;
     private String firma;
     private String grund;
     private LocalDate von;
     private LocalDate bis;
-    private Status status = Status.OFFEN;
+    private Status status = Status.UNBESTAETIGT;
+    private String ablehnGrund;
 
     public Antrag() {
     }
@@ -31,6 +33,14 @@ public class Antrag {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFirma() {
@@ -71,5 +81,13 @@ public class Antrag {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getAblehnGrund() {
+        return ablehnGrund;
+    }
+
+    public void setAblehnGrund(String ablehnGrund) {
+        this.ablehnGrund = ablehnGrund;
     }
 }
