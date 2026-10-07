@@ -15,9 +15,9 @@ public class AccountService {
 
     // Start-Accounts, die es nach jedem Neustart gibt (nur zum Entwickeln)
     public AccountService() {
-        erstellen("mitarbeiter", "mitarbeiter123", Account.Rolle.MITARBEITER, false);
-        erstellen("verwaltung", "verwaltung123", Account.Rolle.VERWALTUNG, false);
-        erstellen("admin", "admin123", Account.Rolle.VERWALTUNG, true);
+        erstellen("LeonhardKlotz", "leo123", Account.Rolle.MITARBEITER, false);
+        erstellen("Nicole", "nicole123", Account.Rolle.VERWALTUNG, false);
+        erstellen("Markus", "markus123", Account.Rolle.VERWALTUNG, true);
     }
 
     public List<Account> alle() {

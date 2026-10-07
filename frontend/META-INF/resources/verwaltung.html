@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EXPass</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/verwaltung.css">
+</head>
+<body>
+<nav class="schnellwahl">
+    <details class="sprungmenue">
+        <summary>Jump to ▾</summary>
+        <div class="sprung-links">
+            <a href="#bereich-hinzufuegen">Add visitor</a>
+            <a href="#bereich-antraege">Requests</a>
+            <a href="#bereich-schaeden">Damages</a>
+            <a href="#bereich-besucher">Visitors</a>
+        </div>
+    </details>
+    <input type="search" id="suche" placeholder="Search…" title="Searches all lists. Several words narrow the result, e.g. ACME 2026-10">
+    <span id="treffer"></span>
+</nav>
+
+<h1>EXPass – Visitor Management</h1>
+
+<form action="/logout" method="post">
+    <button type="submit" class="logout">Log out</button>
+</form>
+<p id="accounts-link" hidden><a href="/accounts.html">Manage accounts</a></p>
+
+<section class="karte">
+<h2 id="bereich-hinzufuegen">Add visitor</h2>
+<form id="besucher-formular">
+    <input name="name" placeholder="Name" required>
+    <input name="firma" placeholder="Company">
+    <input name="grund" placeholder="Reason for visit">
+    <input name="datum" type="date" required>
+    <input name="ankunft" type="time">
+    <button type="submit">Add</button>
+    <button type="button" id="jetzt">Now</button>
+
+</form>
+
+<p id="meldung"></p>
+</section>
+
+<section class="karte">
+<h2 id="bereich-antraege">Requests</h2>
+<p id="antrag-meldung"></p>
+<div class="tabelle-scroll">
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>E-mail</th>
+        <th>Company</th>
+        <th>Reason</th>
+        <th>From</th>
+        <th>Until</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody id="antrag-tabelle"></tbody>
+</table>
+</div>
+</section>
+
+<section class="karte">
+<h2 id="bereich-schaeden">Damages</h2>
+<div class="tabelle-scroll">
+<table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Reported by</th>
+        <th>Caused by</th>
+    </tr>
+    </thead>
+    <tbody id="schaden-tabelle"></tbody>
+</table>
+</div>
+</section>
+
+<section class="karte">
+<h2 id="bereich-besucher">Visitors</h2>
+<div class="tabelle-scroll">
+<table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Name</th>
+        <th>Company</th>
+        <th>Reason</th>
+        <th>Arrival</th>
+        <th>Departure</th>
+    </tr>
+    </thead>
+    <tbody id="besucher-tabelle"></tbody>
+</table>
+</div>
+<p id="besucher-meldung"></p>
+</section>
+
+<script src="/verwaltung.js"></script>
+</body>
+</html>

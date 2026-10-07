@@ -4,16 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>EXPass – Accounts</title>
+    <link rel="stylesheet" href="/style.css">
     <style>
-        body {
-            font-family: sans-serif;
-            text-align: center;
-            background-color: black;
-            color: white;
-        }
-        h1 {
-            color: darkorange;
-        }
         a {
             color: darkorange;
         }
@@ -32,6 +24,29 @@
         th, td {
             border: 1px solid white;
             padding: 8px 16px;
+        }
+        /* Suche über der Account-Tabelle */
+        .suche {
+            margin-bottom: 12px;
+        }
+        #account-suche {
+            width: 280px;
+            max-width: 100%;
+            padding: 8px 10px;
+            background-color: #1e1e1e;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 6px;
+            font: inherit;
+        }
+        #account-suche:focus {
+            outline: none;
+            border-color: darkorange;
+        }
+        #account-treffer {
+            margin-left: 8px;
+            font-size: 0.85em;
+            color: #bbb;
         }
     </style>
 </head>
@@ -53,6 +68,11 @@
 <p id="meldung"></p>
 
 <h2>All accounts</h2>
+<div class="suche">
+    <input type="search" id="account-suche" placeholder="Search accounts…"
+           title="Searches username, role and admin. Several words narrow the result, e.g. admin yes">
+    <span id="account-treffer"></span>
+</div>
 <table>
     <thead>
     <tr>
@@ -93,7 +113,8 @@
             return;
         }
         const accounts = await antwort.json();
-        accounts.sort((a, b) => a.benutzername.localeCompare(b.benutzername));
+        // Alphabetisch nach Benutzername, Groß-/Kleinschreibung egal
+        accounts.sort((a, b) => a.benutzername.localeCompare(b.benutzername, 'de', { sensitivity: 'base' }));
 
         tabelle.innerHTML = '';
         for (const account of accounts) {
@@ -136,7 +157,25 @@
             zeile.appendChild(aktionen);
             tabelle.appendChild(zeile);
         }
+        sucheAnwenden();
     }
+
+    // Zeigt nur Zeilen, in denen alle Suchwörter vorkommen (Benutzername, Rolle, Admin)
+    function sucheAnwenden() {
+        const woerter = document.getElementById('account-suche').value.toLowerCase().split(/\s+/).filter(w => w);
+        const zeilen = document.querySelectorAll('#account-tabelle tr');
+        let treffer = 0;
+        for (const zeile of zeilen) {
+            const text = [...zeile.cells].slice(0, 3).map(zelle => zelle.textContent).join(' ').toLowerCase();
+            const passt = woerter.every(wort => text.includes(wort));
+            zeile.hidden = !passt;
+            if (passt) treffer++;
+        }
+        document.getElementById('account-treffer').textContent =
+            woerter.length ? (treffer === 1 ? '1 match' : `${treffer} matches`) : '';
+    }
+
+    document.getElementById('account-suche').addEventListener('input', sucheAnwenden);
 
     document.getElementById('account-formular').addEventListener('submit', async (event) => {
         event.preventDefault();
