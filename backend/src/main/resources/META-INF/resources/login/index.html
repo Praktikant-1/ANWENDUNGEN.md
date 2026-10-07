@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EXPass – Login</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+        }
+        h1 {
+            color: darkorange;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 320px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        #fehler {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<h1>EXPass – Login</h1>
+
+<p id="fehler" hidden>Username or password is wrong.</p>
+
+<form action="/j_security_check" method="post">
+    <input name="j_username" placeholder="Username" required>
+    <input name="j_password" type="password" placeholder="Password" required>
+    <button type="submit">Log in</button>
+</form>
+
+<p><a href="/">Back to start page</a></p>
+
+<script>
+    if (location.search.includes('fehler')) {
+        document.getElementById('fehler').hidden = false;
+    }
+</script>
+</body>
+</html>

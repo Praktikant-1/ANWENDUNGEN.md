@@ -10,103 +10,72 @@
             text-align: center;
             background-color: black;
             color: white;
-
         }
         h1 {
             color: darkorange;
         }
-        table {
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 320px;
             margin: 0 auto;
-            border-collapse: collapse;
+            text-align: left;
         }
-
-        th, td {
-            border: 1px solid white;
+        .login {
+            display: inline-block;
+            margin-top: 8px;
             padding: 8px 16px;
+            color: black;
+            background-color: darkorange;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
 <h1>EXPass – Visitor Management</h1>
 
-<h2>Add visitor</h2>
-<form id="besucher-formular">
+<h2>Request a visit</h2>
+<form id="antrag-formular">
     <input name="name" placeholder="Name" required>
     <input name="firma" placeholder="Company">
-    <input name="grund" placeholder="Reason for visit">
-    <input name="ankunft" type="time">
-    <button type="submit">Add</button>
-    <button type="button" id="jetzt">Now</button>
-
+    <input name="grund" placeholder="Reason for visit" required>
+    <label>From <input name="von" type="date" required></label>
+    <label>Until <input name="bis" type="date" required></label>
+    <button type="submit">Send request</button>
 </form>
+<p id="meldung"></p>
 
-</form><p id="meldung"></p>
-
-<h2>Visitors</h2>
-<table>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Company</th>
-        <th>Reason</th>
-        <th>Arrival</th>
-    </tr>
-    </thead>
-    <tbody id="besucher-tabelle"></tbody>
-</table>
+<h2>Staff</h2>
+<a class="login" href="/login/">Log in</a>
 
 <script>
-    async function ladeBesucher() {
-        const antwort = await fetch('/besucher');
-        const besucherListe = await antwort.json();
+    const heute = new Date().toISOString().slice(0, 10);
+    const von = document.querySelector('[name="von"]');
+    const bis = document.querySelector('[name="bis"]');
+    von.min = heute;
+    bis.min = heute;
+    von.addEventListener('change', () => bis.min = von.value || heute);
 
-        const tabelle = document.getElementById('besucher-tabelle');
-        tabelle.innerHTML = '';
-
-        if (besucherListe.length === 0) {
-            tabelle.innerHTML = '<tr><td colspan="4">No visitors yet.</td></tr>';
-            return;
-        }
-
-        for (const besucher of besucherListe) {
-            const zeile = document.createElement('tr');
-            for (const wert of [besucher.name, besucher.firma, besucher.grund, besucher.ankunft]) {
-                const zelle = document.createElement('td');
-                zelle.textContent = wert ?? '';
-                zeile.appendChild(zelle);
-            }
-            tabelle.appendChild(zeile);
-        }
-    }
-
-    document.getElementById('besucher-formular').addEventListener('submit', async (event) => {
+    document.getElementById('antrag-formular').addEventListener('submit', async (event) => {
         event.preventDefault();
         const meldung = document.getElementById('meldung');
 
         const daten = Object.fromEntries(new FormData(event.target));
-        if (!daten.ankunft) delete daten.ankunft;
 
-        const antwort = await fetch('/besucher', {
+        const antwort = await fetch('/antraege', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(daten)
         });
 
         if (antwort.ok) {
-            meldung.textContent = 'Visitor added.';
+            meldung.textContent = 'Request sent.';
             event.target.reset();
-            ladeBesucher();
         } else {
-            meldung.textContent = 'Error: visitor could not be saved.';
+            meldung.textContent = 'Error: request could not be sent.';
         }
     });
-
-    ladeBesucher();
-
-    document.getElementById('jetzt').addEventListener('click', () => {
-              document.querySelector('[name="ankunft"]').value =
-                  new Date().toTimeString().slice(0, 5);
-          });
 </script>
 </body>
 </html>

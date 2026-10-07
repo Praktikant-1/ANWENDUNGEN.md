@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EXPass</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+
+        }
+        h1 {
+            color: darkorange;
+        }
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid white;
+            padding: 8px 16px;
+        }
+        .logout {
+            padding: 8px 16px;
+            color: black;
+            background-color: darkorange;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>EXPass – Visitor Management</h1>
+
+<form action="/logout" method="post">
+    <button type="submit" class="logout">Log out</button>
+</form>
+
+<h2>Add visitor</h2>
+<form id="besucher-formular">
+    <input name="name" placeholder="Name" required>
+    <input name="firma" placeholder="Company">
+    <input name="grund" placeholder="Reason for visit">
+    <input name="ankunft" type="time">
+    <button type="submit">Add</button>
+    <button type="button" id="jetzt">Now</button>
+
+</form>
+
+<p id="meldung"></p>
+
+<h2>Requests</h2>
+<p id="antrag-meldung"></p>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Company</th>
+        <th>Reason</th>
+        <th>From</th>
+        <th>Until</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody id="antrag-tabelle"></tbody>
+</table>
+
+<h2>Visitors</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Company</th>
+        <th>Reason</th>
+        <th>Arrival</th>
+    </tr>
+    </thead>
+    <tbody id="besucher-tabelle"></tbody>
+</table>
+
+<script>
+    // Nicht (mehr) eingeloggt: Quarkus leitet auf die Login-Seite um
+    function zumLoginWennAbgelaufen(antwort) {
+        if (antwort.redirected) {
+            location.href = '/login/';
+            return true;
+        }
+        return false;
+    }
+
+    async function ladeBesucher() {
+        const tabelle = document.getElementById('besucher-tabelle');
+        const antwort = await fetch('/besucher');
+        if (zumLoginWennAbgelaufen(antwort)) return;
+        if (!antwort.ok) {
+            tabelle.innerHTML = '<tr><td colspan="4">No permission to see visitors.</td></tr>';
+            return;
+        }
+        const besucherListe = await antwort.json();
+
+        tabelle.innerHTML = '';
+
+        if (besucherListe.length === 0) {
+            tabelle.innerHTML = '<tr><td colspan="4">No visitors yet.</td></tr>';
+            return;
+        }
+
+        for (const besucher of besucherListe) {
+            const zeile = document.createElement('tr');
+            for (const wert of [besucher.name, besucher.firma, besucher.grund, besucher.ankunft]) {
+                const zelle = document.createElement('td');
+                zelle.textContent = wert ?? '';
+                zeile.appendChild(zelle);
+            }
+            tabelle.appendChild(zeile);
+        }
+    }
+
+    document.getElementById('besucher-formular').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const meldung = document.getElementById('meldung');
+
+        const daten = Object.fromEntries(new FormData(event.target));
+        if (!daten.ankunft) delete daten.ankunft;
+
+        const antwort = await fetch('/besucher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(daten)
+        });
+        if (zumLoginWennAbgelaufen(antwort)) return;
+
+        if (antwort.ok) {
+            meldung.textContent = 'Visitor added.';
+            event.target.reset();
+            ladeBesucher();
+        } else {
+            meldung.textContent = 'Error: visitor could not be saved.';
+        }
+    });
+
+    ladeBesucher();
+
+    const statusText = { OFFEN: 'Open', ANGENOMMEN: 'Accepted', ABGELEHNT: 'Rejected' };
+
+    async function ladeAntraege() {
+        const tabelle = document.getElementById('antrag-tabelle');
+        const antwort = await fetch('/antraege');
+        if (zumLoginWennAbgelaufen(antwort)) return;
+        if (!antwort.ok) {
+            tabelle.innerHTML = '<tr><td colspan="7">No permission to see requests.</td></tr>';
+            return;
+        }
+        const antraege = await antwort.json();
+
+        tabelle.innerHTML = '';
+
+        if (antraege.length === 0) {
+            tabelle.innerHTML = '<tr><td colspan="7">No requests yet.</td></tr>';
+            return;
+        }
+
+        for (const antrag of antraege) {
+            const zeile = document.createElement('tr');
+            for (const wert of [antrag.name, antrag.firma, antrag.grund, antrag.von, antrag.bis, statusText[antrag.status]]) {
+                const zelle = document.createElement('td');
+                zelle.textContent = wert ?? '';
+                zeile.appendChild(zelle);
+            }
+
+            const aktionen = document.createElement('td');
+            if (antrag.status === 'OFFEN') {
+                for (const [text, aktion] of [['Accept', 'annehmen'], ['Reject', 'ablehnen']]) {
+                    const knopf = document.createElement('button');
+                    knopf.textContent = text;
+                    knopf.addEventListener('click', async () => {
+                        const antwort = await fetch(`/antraege/${antrag.id}/${aktion}`, { method: 'POST' });
+                        if (zumLoginWennAbgelaufen(antwort)) return;
+                        document.getElementById('antrag-meldung').textContent =
+                            antwort.status === 403 ? 'Only admins can accept or reject requests.' : '';
+                        ladeAntraege();
+                    });
+                    aktionen.appendChild(knopf);
+                }
+            }
+            zeile.appendChild(aktionen);
+            tabelle.appendChild(zeile);
+        }
+    }
+
+    ladeAntraege();
+
+    document.getElementById('jetzt').addEventListener('click', () => {
+              document.querySelector('[name="ankunft"]').value =
+                  new Date().toTimeString().slice(0, 5);
+          });
+</script>
+</body>
+</html>
