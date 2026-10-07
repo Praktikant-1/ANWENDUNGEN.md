@@ -22,6 +22,9 @@
             margin: 0 auto;
             text-align: left;
         }
+        #code-bereich[hidden] {
+            display: none;
+        }
         .login {
             display: inline-block;
             margin-top: 8px;
@@ -38,13 +41,21 @@
 <h2>Request a visit</h2>
 <form id="antrag-formular">
     <input name="name" placeholder="Name" required>
-    <input name="firma" placeholder="Company">
+    <input name="email" type="email" placeholder="E-mail" required>
+    <input name="firma" placeholder="Company (optional)">
     <input name="grund" placeholder="Reason for visit" required>
     <label>From <input name="von" type="date" required></label>
     <label>Until <input name="bis" type="date" required></label>
     <button type="submit">Send request</button>
 </form>
 <p id="meldung"></p>
+
+<form id="code-bereich" hidden>
+    <p id="countdown"></p>
+    <input name="code" placeholder="6-digit code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required>
+    <button type="submit">Confirm</button>
+    <button type="button" id="code-erneut">Send code again</button>
+</form>
 
 <h2>Staff</h2>
 <a class="login" href="/login/">Log in</a>
@@ -57,9 +68,34 @@
     bis.min = heute;
     von.addEventListener('change', () => bis.min = von.value || heute);
 
+    // Muss zu MailService.VERZOEGERUNG_SEKUNDEN passen
+    const VERZOEGERUNG_SEKUNDEN = 30;
+    const meldung = document.getElementById('meldung');
+    const codeBereich = document.getElementById('code-bereich');
+    const countdown = document.getElementById('countdown');
+    let email = null;
+    let timer = null;
+
+    // Startet bei jeder neuen Anfrage von vorn, genau wie das Debouncing im Backend
+    function starteCountdown() {
+        let rest = VERZOEGERUNG_SEKUNDEN;
+        clearInterval(timer);
+        const anzeigen = () => {
+            countdown.textContent = rest > 0
+                ? `A confirmation code will be sent to ${email} in ${rest} s.`
+                : `Code sent to ${email}. It is valid for 10 minutes.`;
+        };
+        anzeigen();
+        timer = setInterval(() => {
+            rest--;
+            anzeigen();
+            if (rest <= 0) clearInterval(timer);
+        }, 1000);
+        codeBereich.hidden = false;
+    }
+
     document.getElementById('antrag-formular').addEventListener('submit', async (event) => {
         event.preventDefault();
-        const meldung = document.getElementById('meldung');
 
         const daten = Object.fromEntries(new FormData(event.target));
 
@@ -70,10 +106,41 @@
         });
 
         if (antwort.ok) {
-            meldung.textContent = 'Request sent.';
+            meldung.textContent = 'Request sent. Please confirm your e-mail address.';
+            email = daten.email;
             event.target.reset();
+            starteCountdown();
         } else {
             meldung.textContent = 'Error: request could not be sent.';
+        }
+    });
+
+    document.getElementById('code-erneut').addEventListener('click', async () => {
+        await fetch('/antraege/code-senden', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        starteCountdown();
+    });
+
+    codeBereich.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const code = new FormData(event.target).get('code');
+
+        const antwort = await fetch('/antraege/bestaetigen', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, code })
+        });
+
+        if (antwort.ok) {
+            clearInterval(timer);
+            event.target.reset();
+            codeBereich.hidden = true;
+            meldung.textContent = 'E-mail confirmed. Your request will now be reviewed.';
+        } else {
+            meldung.textContent = 'Wrong or expired code.';
         }
     });
 </script>

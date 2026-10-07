@@ -59,6 +59,7 @@
     <thead>
     <tr>
         <th>Name</th>
+        <th>E-mail</th>
         <th>Company</th>
         <th>Reason</th>
         <th>From</th>
@@ -153,7 +154,7 @@
         const antwort = await fetch('/antraege');
         if (zumLoginWennAbgelaufen(antwort)) return;
         if (!antwort.ok) {
-            tabelle.innerHTML = '<tr><td colspan="7">No permission to see requests.</td></tr>';
+            tabelle.innerHTML = '<tr><td colspan="8">No permission to see requests.</td></tr>';
             return;
         }
         const antraege = await antwort.json();
@@ -161,13 +162,13 @@
         tabelle.innerHTML = '';
 
         if (antraege.length === 0) {
-            tabelle.innerHTML = '<tr><td colspan="7">No requests yet.</td></tr>';
+            tabelle.innerHTML = '<tr><td colspan="8">No requests yet.</td></tr>';
             return;
         }
 
         for (const antrag of antraege) {
             const zeile = document.createElement('tr');
-            for (const wert of [antrag.name, antrag.firma, antrag.grund, antrag.von, antrag.bis, statusText[antrag.status]]) {
+            for (const wert of [antrag.name, antrag.email, antrag.firma, antrag.grund, antrag.von, antrag.bis, statusText[antrag.status]]) {
                 const zelle = document.createElement('td');
                 zelle.textContent = wert ?? '';
                 zeile.appendChild(zelle);
