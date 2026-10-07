@@ -76,3 +76,23 @@ button[type="submit"]:hover {
 }
 .meldung.ok     { background-color: #12401f; color: #6ee38d; }
 .meldung.fehler { background-color: #4d1414; color: #ff7b7b; }
+
+/* Sprachumschalter DE | EN (Knöpfe setzt sprache.js ein) */
+.sprachwahl {
+    display: inline-flex;
+    gap: 4px;
+}
+.sprachwahl button {
+    padding: 4px 10px;
+    font-size: 0.85em;
+}
+.sprachwahl button.aktiv {
+    background-color: darkorange;
+    color: black;
+}
+/* Auf Seiten ohne Kopfleiste oben rechts in der Ecke */
+.sprachwahl.oben-rechts {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+}

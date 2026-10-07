@@ -3,57 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>EXPass</title>
+    <title data-i18n="verwaltung.seitentitel">EXPass</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/verwaltung.css">
 </head>
 <body>
 <nav class="schnellwahl">
     <details class="sprungmenue">
-        <summary>Jump to ▾</summary>
+        <summary data-i18n="verwaltung.springen">Jump to ▾</summary>
         <div class="sprung-links">
-            <a href="#bereich-hinzufuegen">Add visitor</a>
-            <a href="#bereich-antraege">Requests</a>
-            <a href="#bereich-schaeden">Damages</a>
-            <a href="#bereich-besucher">Visitors</a>
+            <a href="#bereich-hinzufuegen" data-i18n="verwaltung.hinzufuegenTitel">Add visitor</a>
+            <a href="#bereich-antraege" data-i18n="verwaltung.antraegeTitel">Requests</a>
+            <a href="#bereich-schaeden" data-i18n="verwaltung.schaedenTitel">Damages</a>
+            <a href="#bereich-besucher" data-i18n="verwaltung.besucherTitel">Visitors</a>
         </div>
     </details>
-    <input type="search" id="suche" placeholder="Search…" title="Searches all lists. Several words narrow the result, e.g. ACME 2026-10">
+    <input type="search" id="suche" placeholder="Search…" title="Searches all lists. Several words narrow the result, e.g. ACME 2026-10"
+           data-i18n-placeholder="verwaltung.suche" data-i18n-title="verwaltung.sucheTitel">
     <span id="treffer"></span>
-    <button type="button" id="schaden-melden" class="schaden-melden">Report damage</button>
+    <button type="button" id="schaden-melden" class="schaden-melden" data-i18n="schaden.titel">Report damage</button>
+    <div class="sprachwahl"></div>
 </nav>
 
 <dialog id="schaden-dialog">
-    <h2>Report damage</h2>
+    <h2 data-i18n="schaden.titel">Report damage</h2>
     <form id="schaden-formular">
-        <textarea name="beschreibung" rows="4" placeholder="What is damaged? Where?" required></textarea>
-        <label>Date <input name="datum" type="date" required></label>
-        <input name="verursacher" placeholder="Caused by (only if confessed)">
+        <textarea name="beschreibung" rows="4" placeholder="What is damaged? Where?" data-i18n-placeholder="schaden.beschreibung" required></textarea>
+        <label><span data-i18n="spalte.datum">Date</span> <input name="datum" type="date" required></label>
+        <input name="verursacher" placeholder="Caused by (only if confessed)" data-i18n-placeholder="schaden.verursacher">
         <p id="schaden-dialog-meldung"></p>
         <div class="dialog-knoepfe">
-            <button type="button" id="schaden-abbrechen">Cancel</button>
-            <button type="submit">Send report</button>
+            <button type="button" id="schaden-abbrechen" data-i18n="abbrechen">Cancel</button>
+            <button type="submit" data-i18n="schaden.senden">Send report</button>
         </div>
     </form>
 </dialog>
 
-<h1>EXPass – Visitor Management</h1>
+<h1 data-i18n="verwaltung.seitentitel">EXPass – Visitor Management</h1>
 
 <form action="/logout" method="post">
-    <button type="submit" class="logout">Log out</button>
+    <button type="submit" class="logout" data-i18n="abmelden">Log out</button>
 </form>
-<p id="accounts-link" hidden><a href="/accounts.html">Manage accounts</a></p>
+<p id="accounts-link" hidden><a href="/accounts.html" data-i18n="verwaltung.accountsLink">Manage accounts</a></p>
 
 <section class="karte">
-<h2 id="bereich-hinzufuegen">Add visitor</h2>
+<h2 id="bereich-hinzufuegen" data-i18n="verwaltung.hinzufuegenTitel">Add visitor</h2>
 <form id="besucher-formular">
-    <input name="name" placeholder="Name" required>
-    <input name="firma" placeholder="Company">
-    <input name="grund" placeholder="Reason for visit">
+    <input name="name" placeholder="Name" data-i18n-placeholder="feld.name" required>
+    <input name="firma" placeholder="Company" data-i18n-placeholder="feld.firma">
+    <input name="grund" placeholder="Reason for visit" data-i18n-placeholder="feld.grund">
     <input name="datum" type="date" required>
     <input name="ankunft" type="time">
-    <button type="submit">Add</button>
-    <button type="button" id="jetzt">Now</button>
+    <button type="submit" data-i18n="verwaltung.hinzufuegen">Add</button>
+    <button type="button" id="jetzt" data-i18n="verwaltung.jetzt">Now</button>
 
 </form>
 
@@ -61,20 +63,20 @@
 </section>
 
 <section class="karte">
-<h2 id="bereich-antraege">Requests</h2>
+<h2 id="bereich-antraege" data-i18n="verwaltung.antraegeTitel">Requests</h2>
 <p id="antrag-meldung"></p>
 <div class="tabelle-scroll">
 <table>
     <thead>
     <tr>
-        <th>Name</th>
-        <th>E-mail</th>
-        <th>Company</th>
-        <th>Reason</th>
-        <th>From</th>
-        <th>Until</th>
-        <th>Status</th>
-        <th>Decision</th>
+        <th data-i18n="feld.name">Name</th>
+        <th data-i18n="feld.email">E-mail</th>
+        <th data-i18n="feld.firma">Company</th>
+        <th data-i18n="spalte.grund">Reason</th>
+        <th data-i18n="spalte.von">From</th>
+        <th data-i18n="spalte.bis">Until</th>
+        <th data-i18n="spalte.status">Status</th>
+        <th data-i18n="spalte.entscheidung">Decision</th>
     </tr>
     </thead>
     <tbody id="antrag-tabelle"></tbody>
@@ -83,16 +85,16 @@
 </section>
 
 <section class="karte">
-<h2 id="bereich-schaeden">Damages</h2>
+<h2 id="bereich-schaeden" data-i18n="verwaltung.schaedenTitel">Damages</h2>
 <p id="schaden-meldung"></p>
 <div class="tabelle-scroll">
 <table>
     <thead>
     <tr>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Reported by</th>
-        <th>Caused by</th>
+        <th data-i18n="spalte.datum">Date</th>
+        <th data-i18n="spalte.beschreibung">Description</th>
+        <th data-i18n="spalte.gemeldetVon">Reported by</th>
+        <th data-i18n="spalte.verursacher">Caused by</th>
     </tr>
     </thead>
     <tbody id="schaden-tabelle"></tbody>
@@ -101,17 +103,17 @@
 </section>
 
 <section class="karte">
-<h2 id="bereich-besucher">Visitors</h2>
+<h2 id="bereich-besucher" data-i18n="verwaltung.besucherTitel">Visitors</h2>
 <div class="tabelle-scroll">
 <table>
     <thead>
     <tr>
-        <th>Date</th>
-        <th>Name</th>
-        <th>Company</th>
-        <th>Reason</th>
-        <th>Arrival</th>
-        <th>Departure</th>
+        <th data-i18n="spalte.datum">Date</th>
+        <th data-i18n="feld.name">Name</th>
+        <th data-i18n="feld.firma">Company</th>
+        <th data-i18n="spalte.grund">Reason</th>
+        <th data-i18n="spalte.ankunft">Arrival</th>
+        <th data-i18n="spalte.austritt">Departure</th>
     </tr>
     </thead>
     <tbody id="besucher-tabelle"></tbody>
@@ -120,6 +122,7 @@
 <p id="besucher-meldung"></p>
 </section>
 
+<script src="/sprache.js"></script>
 <script src="/verwaltung.js"></script>
 </body>
 </html>
