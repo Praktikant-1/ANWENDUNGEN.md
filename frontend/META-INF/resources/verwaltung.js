@@ -46,8 +46,8 @@ function aktualisiereUebersicht() {
     const tag = new Date().toLocaleDateString('sv'); // JJJJ-MM-TT, wie vom Backend
     const zahlen = {
         'zahl-offen': letzteAntraege?.filter(antrag => antrag.status === 'OFFEN').length,
-        // Mehrtägige Besuche zählen an jedem Tag von "datum" bis "bis"
-        'zahl-erwartet': letzteBesucher?.filter(b => b.datum <= tag && tag <= (b.bis || b.datum)).length,
+        // Besuch ist heute (mehrtägig: jeder Tag von "datum" bis "bis") und noch nicht eingecheckt
+        'zahl-erwartet': letzteBesucher?.filter(b => b.datum <= tag && tag <= (b.bis || b.datum) && !b.ankunft).length,
         // Eingecheckt, aber noch nicht ausgecheckt
         'zahl-im-haus': letzteBesucher?.filter(b => b.ankunft && !b.austritt).length,
         'zahl-schaeden': letzteSchaeden?.filter(schaden => schaden.datum === tag).length,
