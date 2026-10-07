@@ -6,54 +6,220 @@
     <title>EXPass</title>
     <link rel="stylesheet" href="/style.css">
     <style>
+        body {
+            margin: 0;
+        }
+        [hidden] {
+            display: none !important;
+        }
+
+        /* Kopfleiste: Name links, Login für Mitarbeiter rechts */
+        .kopfleiste {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background-color: #1a1a1a;
+            border-bottom: 1px solid darkorange;
+        }
+        .logo {
+            color: darkorange;
+            font-size: 1.4em;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .login {
+            padding: 8px 14px;
+            color: darkorange;
+            border: 1px solid darkorange;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+        .login:hover {
+            background-color: rgba(255, 140, 0, 0.15);
+        }
+
+        main {
+            padding: 0 16px 32px;
+        }
+        .einleitung {
+            margin: 32px auto 0;
+            max-width: 520px;
+        }
+        .einleitung h1 {
+            margin-bottom: 8px;
+        }
+        .einleitung p {
+            margin: 0;
+            color: #bbb;
+        }
+
+        /* Schritt-Anzeige: 1 Request -> 2 Confirm e-mail -> 3 Under review */
+        .schritte {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 24px 0 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0.9em;
+            color: #777;
+        }
+        .schritte li {
+            padding: 6px 12px;
+            border: 1px solid #333;
+            border-radius: 999px;
+        }
+        .schritte li.aktiv {
+            color: black;
+            background-color: darkorange;
+            border-color: darkorange;
+            font-weight: bold;
+        }
+        .schritte li.erledigt {
+            color: #6ee38d;
+            border-color: #12401f;
+        }
+
+        .karte {
+            max-width: 480px;
+            text-align: left;
+        }
+        .karte h2 {
+            text-align: center;
+        }
+
+        /* Formulare: Beschriftung über dem Feld */
         form {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            max-width: 320px;
+            gap: 14px;
+        }
+        label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        .optional {
+            color: #777;
+        }
+        .nebeneinander {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        form button {
+            padding: 10px;
+        }
+        #code-bereich input {
+            font-size: 1.6em;
+            letter-spacing: 8px;
+            text-align: center;
+        }
+        .hinweis {
+            margin: 0;
+            color: #bbb;
+        }
+        #meldung {
+            display: block;
             margin: 0 auto;
-            text-align: left;
+            max-width: 480px;
+            box-sizing: border-box;
+            text-align: center;
         }
-        #code-bereich[hidden] {
-            display: none;
+        .fertig {
+            text-align: center;
         }
-        .login {
-            display: inline-block;
-            margin-top: 8px;
-            padding: 8px 16px;
-            color: black;
-            background-color: darkorange;
-            text-decoration: none;
+        .fertig .haken {
+            font-size: 3em;
+            color: #6ee38d;
+        }
+
+        @media (max-width: 480px) {
+            .nebeneinander {
+                grid-template-columns: 1fr;
+            }
+            .schritte {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
-<h1>EXPass – Visitor Management</h1>
+<header class="kopfleiste">
+    <span class="logo">EXPass</span>
+    <a class="login" href="/login/">Staff login</a>
+</header>
 
-<h2>Request a visit</h2>
-<form id="antrag-formular">
-    <input name="name" placeholder="Name" required>
-    <input name="email" type="email" placeholder="E-mail" required>
-    <input name="firma" placeholder="Company (optional)">
-    <input name="grund" placeholder="Reason for visit" required>
-    <label>From <input name="von" type="date" required></label>
-    <label>Until <input name="bis" type="date" required></label>
-    <button type="submit">Send request</button>
-</form>
-<p id="meldung"></p>
+<main>
+    <div class="einleitung">
+        <h1>Welcome!</h1>
+        <p>Register your visit in under a minute. We will confirm it by e-mail.</p>
+    </div>
 
-<form id="code-bereich" hidden>
-    <p id="code-hinweis"></p>
-    <input name="code" placeholder="6-digit code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required>
-    <button type="submit">Confirm</button>
-    <button type="button" id="code-erneut">Send code again</button>
-</form>
+    <ol class="schritte">
+        <li id="schritt-1" class="aktiv">1 Request</li>
+        <li id="schritt-2">2 Confirm e-mail</li>
+        <li id="schritt-3">3 Under review</li>
+    </ol>
 
-<h2>Staff</h2>
-<a class="login" href="/login/">Log in</a>
+    <!-- Schritt 1: Antrag stellen -->
+    <section class="karte" id="antrag-karte">
+        <h2>Request a visit</h2>
+        <form id="antrag-formular">
+            <label>Name
+                <input name="name" autocomplete="name" required>
+            </label>
+            <label>E-mail
+                <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <label><span>Company <span class="optional">(optional)</span></span>
+                <input name="firma" autocomplete="organization">
+            </label>
+            <label>Reason for visit
+                <input name="grund" placeholder="e.g. maintenance, meeting, interview" required>
+            </label>
+            <div class="nebeneinander">
+                <label>From
+                    <input name="von" type="date" required>
+                </label>
+                <label>Until
+                    <input name="bis" type="date" required>
+                </label>
+            </div>
+            <button type="submit">Send request</button>
+        </form>
+    </section>
+
+    <!-- Schritt 2: E-Mail mit Code bestätigen -->
+    <section class="karte" id="code-karte" hidden>
+        <h2>Confirm your e-mail</h2>
+        <form id="code-bereich">
+            <p class="hinweis" id="code-hinweis"></p>
+            <input name="code" placeholder="000000" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+                   autocomplete="one-time-code" aria-label="6-digit code" required>
+            <button type="submit">Confirm</button>
+            <button type="button" id="code-erneut">Send code again</button>
+        </form>
+    </section>
+
+    <!-- Schritt 3: fertig -->
+    <section class="karte fertig" id="fertig-karte" hidden>
+        <div class="haken">✓</div>
+        <h2>Thank you!</h2>
+        <p class="hinweis">Your e-mail is confirmed and your request will now be reviewed.
+            You will receive an e-mail as soon as it has been accepted or rejected.</p>
+        <p><button type="button" id="neuer-antrag">Request another visit</button></p>
+    </section>
+
+    <p id="meldung"></p>
+</main>
 
 <script>
-    const heute = new Date().toISOString().slice(0, 10);
+    // Lokales Datum statt UTC (sonst kurz nach Mitternacht falscher Tag)
+    const heute = new Date().toLocaleDateString('sv');
     const von = document.querySelector('[name="von"]');
     const bis = document.querySelector('[name="bis"]');
     von.min = heute;
@@ -61,13 +227,28 @@
     von.addEventListener('change', () => bis.min = von.value || heute);
 
     const meldung = document.getElementById('meldung');
-    const codeBereich = document.getElementById('code-bereich');
     const hinweis = document.getElementById('code-hinweis');
     let email = null;
 
-    function zeigeCodeBereich() {
+    function zeigeMeldung(text, istFehler) {
+        meldung.textContent = text;
+        meldung.className = text ? (istFehler ? 'meldung fehler' : 'meldung ok') : '';
+    }
+
+    // Zeigt die Karte für Schritt 1, 2 oder 3 und markiert die Schritt-Anzeige
+    function zeigeSchritt(nummer) {
+        document.getElementById('antrag-karte').hidden = nummer !== 1;
+        document.getElementById('code-karte').hidden = nummer !== 2;
+        document.getElementById('fertig-karte').hidden = nummer !== 3;
+        for (let i = 1; i <= 3; i++) {
+            const schritt = document.getElementById(`schritt-${i}`);
+            schritt.classList.toggle('aktiv', i === nummer);
+            schritt.classList.toggle('erledigt', i < nummer);
+        }
+    }
+
+    function zeigeCodeHinweis() {
         hinweis.textContent = `A confirmation code will be sent to ${email} shortly. It is valid for 10 minutes.`;
-        codeBereich.hidden = false;
     }
 
     document.getElementById('antrag-formular').addEventListener('submit', async (event) => {
@@ -82,12 +263,13 @@
         });
 
         if (antwort.ok) {
-            meldung.textContent = 'Request sent. Please confirm your e-mail address.';
+            zeigeMeldung('', false);
             email = daten.email;
             event.target.reset();
-            zeigeCodeBereich();
+            zeigeCodeHinweis();
+            zeigeSchritt(2);
         } else {
-            meldung.textContent = 'Error: request could not be sent.';
+            zeigeMeldung('Error: request could not be sent.', true);
         }
     });
 
@@ -97,10 +279,11 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
         });
-        zeigeCodeBereich();
+        zeigeCodeHinweis();
+        zeigeMeldung('A new code is on its way.', false);
     });
 
-    codeBereich.addEventListener('submit', async (event) => {
+    document.getElementById('code-bereich').addEventListener('submit', async (event) => {
         event.preventDefault();
         const code = new FormData(event.target).get('code');
 
@@ -112,11 +295,17 @@
 
         if (antwort.ok) {
             event.target.reset();
-            codeBereich.hidden = true;
-            meldung.textContent = 'E-mail confirmed. Your request will now be reviewed.';
+            zeigeMeldung('', false);
+            zeigeSchritt(3);
         } else {
-            meldung.textContent = 'Wrong or expired code.';
+            zeigeMeldung('Wrong or expired code.', true);
         }
+    });
+
+    document.getElementById('neuer-antrag').addEventListener('click', () => {
+        email = null;
+        zeigeMeldung('', false);
+        zeigeSchritt(1);
     });
 </script>
 </body>

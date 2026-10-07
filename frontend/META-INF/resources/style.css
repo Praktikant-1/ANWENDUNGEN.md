@@ -8,3 +8,63 @@ body {
 h1 {
     color: darkorange;
 }
+a {
+    color: darkorange;
+}
+
+/* Eingabefelder */
+input, select, textarea {
+    padding: 8px 10px;
+    background-color: #1e1e1e;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font: inherit;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: darkorange;
+}
+
+/* Buttons: Absenden orange gefüllt, alle anderen nur mit Rahmen */
+button {
+    padding: 8px 14px;
+    background-color: transparent;
+    color: darkorange;
+    border: 1px solid darkorange;
+    border-radius: 6px;
+    font: inherit;
+    cursor: pointer;
+}
+button:hover {
+    background-color: rgba(255, 140, 0, 0.15);
+}
+button[type="submit"] {
+    background-color: darkorange;
+    color: black;
+}
+button[type="submit"]:hover {
+    background-color: orange;
+}
+
+/* Bereiche als Karten */
+.karte {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 16px 24px;
+    margin: 24px auto;
+    max-width: 1100px;
+}
+.karte h2 {
+    margin-top: 0;
+}
+
+/* Meldungen als grüne bzw. rote Box */
+.meldung {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 6px;
+}
+.meldung.ok     { background-color: #12401f; color: #6ee38d; }
+.meldung.fehler { background-color: #4d1414; color: #ff7b7b; }
