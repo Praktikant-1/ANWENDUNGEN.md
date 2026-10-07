@@ -1,4 +1,4 @@
-package de.exp;
+package de.exp.besucher;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.NotFoundException;

@@ -1,4 +1,4 @@
-package de.exp;
+package de.exp.account;
 
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;

@@ -1,4 +1,4 @@
-package de.exp;
+package de.exp.schaden;
 
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.RolesAllowed;

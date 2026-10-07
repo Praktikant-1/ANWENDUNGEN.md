@@ -1,4 +1,4 @@
-package de.exp;
+package de.exp.login;
 
 import io.quarkus.security.identity.SecurityIdentity;
 import io.quarkus.vertx.http.runtime.security.FormAuthenticationMechanism;

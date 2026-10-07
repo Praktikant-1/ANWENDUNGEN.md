@@ -1,4 +1,4 @@
-package de.exp;
+package de.exp.account;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
 import jakarta.enterprise.context.ApplicationScoped;
