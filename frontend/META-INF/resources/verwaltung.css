@@ -41,6 +41,37 @@ h2 {
     max-width: 400px;
     min-width: 0;
 }
+/* "Report damage" ganz rechts in der Leiste */
+.schaden-melden {
+    margin-left: auto;
+    white-space: nowrap;
+}
+#schaden-dialog {
+    width: min(420px, calc(100vw - 32px));
+    box-sizing: border-box;
+    padding: 20px 24px;
+    color: white;
+    background-color: #1a1a1a;
+    border: 1px solid darkorange;
+    border-radius: 10px;
+}
+#schaden-dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+#schaden-dialog h2 {
+    margin-top: 0;
+}
+#schaden-formular {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+}
+.dialog-knoepfe {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
 #treffer {
     font-size: 0.85em;
     color: #bbb;
@@ -107,6 +138,12 @@ tbody tr:hover {
 .badge-offen      { background-color: #5c4400; color: #ffcc4d; }
 .badge-angenommen { background-color: #12401f; color: #6ee38d; }
 .badge-abgelehnt  { background-color: #4d1414; color: #ff7b7b; }
+
+/* Zeitpunkt unter dem Namen, wer einen Antrag entschieden hat */
+.entschieden-am {
+    font-size: 0.85em;
+    color: #bbb;
+}
 
 /* Ankunftszeit fehlt noch (z. B. angenommener Antrag) */
 .zeit-fehlt {

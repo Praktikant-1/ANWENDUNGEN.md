@@ -21,6 +21,14 @@ input, select, textarea {
     border-radius: 6px;
     font: inherit;
 }
+/* Kalender- und Uhr-Symbol in Datums-/Zeitfeldern weiß, sonst auf dunklem Grund kaum sichtbar */
+input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+input[type="date"], input[type="time"] {
+    color-scheme: dark;
+}
 input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: darkorange;

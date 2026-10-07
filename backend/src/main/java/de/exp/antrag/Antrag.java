@@ -1,6 +1,7 @@
 package de.exp.antrag;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Antrag {
 
@@ -15,6 +16,9 @@ public class Antrag {
     private LocalDate bis;
     private Status status = Status.UNBESTAETIGT;
     private String ablehnGrund;
+    // Wer (Benutzername) den Antrag wann angenommen oder abgelehnt hat
+    private String entschiedenVon;
+    private LocalDateTime entschiedenAm;
 
     public Antrag() {
     }
@@ -89,5 +93,21 @@ public class Antrag {
 
     public void setAblehnGrund(String ablehnGrund) {
         this.ablehnGrund = ablehnGrund;
+    }
+
+    public String getEntschiedenVon() {
+        return entschiedenVon;
+    }
+
+    public void setEntschiedenVon(String entschiedenVon) {
+        this.entschiedenVon = entschiedenVon;
+    }
+
+    public LocalDateTime getEntschiedenAm() {
+        return entschiedenAm;
+    }
+
+    public void setEntschiedenAm(LocalDateTime entschiedenAm) {
+        this.entschiedenAm = entschiedenAm;
     }
 }

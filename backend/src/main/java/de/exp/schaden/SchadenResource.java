@@ -29,9 +29,10 @@ public class SchadenResource {
         return schaeden;
     }
 
-    // Mitarbeiter melden Schäden, der Melder ist immer der eingeloggte Benutzer
+    // Mitarbeiter und Verwaltung (inkl. Admins) melden Schäden,
+    // der Melder ist immer der eingeloggte Benutzer
     @POST
-    @RolesAllowed("mitarbeiter")
+    @RolesAllowed({"mitarbeiter", "verwaltung"})
     public Schaden melden(Schaden schaden) {
         if (schaden.getBeschreibung() == null || schaden.getBeschreibung().isBlank()) {
             throw new BadRequestException("Beschreibung ist Pflicht");

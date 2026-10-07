@@ -4,6 +4,7 @@ import de.exp.besucher.Besucher;
 import de.exp.besucher.BesucherService;
 import de.exp.mail.MailService;
 import io.quarkus.logging.Log;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -16,6 +17,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,6 +39,9 @@ public class AntragResource {
 
     @Inject
     BesucherService besucherService;
+
+    @Inject
+    SecurityIdentity identity;
 
     private final List<Antrag> antraege = new CopyOnWriteArrayList<>();
     private final AtomicLong naechsteId = new AtomicLong(1);
@@ -67,6 +73,8 @@ public class AntragResource {
         antrag.setEmail(MailService.normalisieren(antrag.getEmail()));
         antrag.setStatus(Antrag.Status.UNBESTAETIGT);
         antrag.setAblehnGrund(null);
+        antrag.setEntschiedenVon(null);
+        antrag.setEntschiedenAm(null);
         antraege.add(antrag);
         mailService.codeAnfordern(antrag.getEmail());
         return antrag;
@@ -124,11 +132,16 @@ public class AntragResource {
                 .filter(a -> a.getId() == id && a.getStatus() != Antrag.Status.UNBESTAETIGT)
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
-        if (antrag.getStatus() != Antrag.Status.OFFEN) {
-            throw new ClientErrorException("Antrag wurde bereits entschieden", Response.Status.CONFLICT);
+        // synchronized: klicken zwei Admins gleichzeitig, gewinnt nur einer
+        synchronized (antrag) {
+            if (antrag.getStatus() != Antrag.Status.OFFEN) {
+                throw new ClientErrorException("Antrag wurde bereits entschieden", Response.Status.CONFLICT);
+            }
+            antrag.setStatus(status);
+            antrag.setAblehnGrund(ablehnGrund);
+            antrag.setEntschiedenVon(identity.getPrincipal().getName());
+            antrag.setEntschiedenAm(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         }
-        antrag.setStatus(status);
-        antrag.setAblehnGrund(ablehnGrund);
         if (status == Antrag.Status.ANGENOMMEN) {
             besucherService.hinzufuegen(alsBesucher(antrag));
         }

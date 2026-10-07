@@ -20,7 +20,22 @@
     </details>
     <input type="search" id="suche" placeholder="Search…" title="Searches all lists. Several words narrow the result, e.g. ACME 2026-10">
     <span id="treffer"></span>
+    <button type="button" id="schaden-melden" class="schaden-melden">Report damage</button>
 </nav>
+
+<dialog id="schaden-dialog">
+    <h2>Report damage</h2>
+    <form id="schaden-formular">
+        <textarea name="beschreibung" rows="4" placeholder="What is damaged? Where?" required></textarea>
+        <label>Date <input name="datum" type="date" required></label>
+        <input name="verursacher" placeholder="Caused by (only if confessed)">
+        <p id="schaden-dialog-meldung"></p>
+        <div class="dialog-knoepfe">
+            <button type="button" id="schaden-abbrechen">Cancel</button>
+            <button type="submit">Send report</button>
+        </div>
+    </form>
+</dialog>
 
 <h1>EXPass – Visitor Management</h1>
 
@@ -59,7 +74,7 @@
         <th>From</th>
         <th>Until</th>
         <th>Status</th>
-        <th></th>
+        <th>Decision</th>
     </tr>
     </thead>
     <tbody id="antrag-tabelle"></tbody>
@@ -69,6 +84,7 @@
 
 <section class="karte">
 <h2 id="bereich-schaeden">Damages</h2>
+<p id="schaden-meldung"></p>
 <div class="tabelle-scroll">
 <table>
     <thead>

@@ -26,6 +26,11 @@ function uhrzeit(wert) {
     return wert ? wert.slice(0, 5) : '';
 }
 
+// "2026-10-07T15:10:00" -> "2026-10-07 15:10"
+function datumUhrzeit(wert) {
+    return wert ? wert.replace('T', ' ').slice(0, 16) : '';
+}
+
 // "2026-10-10" bzw. "2026-10-10 – 2026-10-12" bei mehrtägigen Besuchen
 function zeitraum(datum, bis) {
     return bis && bis !== datum ? `${datum} – ${bis}` : (datum ?? '');
@@ -189,9 +194,15 @@ async function ladeAntraege() {
         }
         zeile.appendChild(statusZelle);
 
+        // Offen: Knöpfe zum Entscheiden, sonst wer wann entschieden hat
         const aktionen = document.createElement('td');
         if (antrag.status === 'OFFEN') {
             zeigeEntscheidungsKnoepfe(aktionen, antrag);
+        } else if (antrag.entschiedenVon) {
+            const zeitpunkt = document.createElement('span');
+            zeitpunkt.className = 'entschieden-am';
+            zeitpunkt.textContent = datumUhrzeit(antrag.entschiedenAm);
+            aktionen.append(antrag.entschiedenVon, document.createElement('br'), zeitpunkt);
         }
         zeile.appendChild(aktionen);
         tabelle.appendChild(zeile);
@@ -286,7 +297,7 @@ document.getElementById('jetzt').addEventListener('click', () => {
 });
 
 // Datum im Formular mit heute vorbelegen (auch nach dem Zurücksetzen)
-const datumFeld = document.querySelector('[name="datum"]');
+const datumFeld = document.querySelector('#besucher-formular [name="datum"]');
 const heute = () => new Date().toLocaleDateString('sv');
 datumFeld.value = heute();
 document.getElementById('besucher-formular').addEventListener('reset', () => {
@@ -334,3 +345,39 @@ suchFeld.addEventListener('input', sucheAnwenden);
 // Listen werden nachgeladen (z. B. nach Accept/Check in) – dann Suche erneut anwenden
 const beobachter = new MutationObserver(sucheAnwenden);
 tabellen.forEach(tabelle => beobachter.observe(tabelle, { childList: true }));
+
+// Schaden melden (Verwaltung und Admins), öffnet ein Fenster über der Seite
+const schadenDialog = document.getElementById('schaden-dialog');
+const schadenFormular = document.getElementById('schaden-formular');
+const schadenDatum = schadenFormular.querySelector('[name="datum"]');
+
+document.getElementById('schaden-melden').addEventListener('click', () => {
+    schadenFormular.reset();
+    zeigeMeldung('schaden-dialog-meldung', '', false);
+    schadenDatum.max = heute();
+    schadenDatum.value = heute();
+    schadenDialog.showModal();
+});
+
+document.getElementById('schaden-abbrechen').addEventListener('click', () => schadenDialog.close());
+
+schadenFormular.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const daten = Object.fromEntries(new FormData(schadenFormular));
+    if (!daten.verursacher) delete daten.verursacher;
+
+    const antwort = await fetch('/schaeden', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(daten)
+    });
+    if (zumLoginWennAbgelaufen(antwort)) return;
+
+    if (antwort.ok) {
+        schadenDialog.close();
+        zeigeMeldung('schaden-meldung', 'Damage reported.', false);
+        ladeSchaeden();
+    } else {
+        zeigeMeldung('schaden-dialog-meldung', 'Error: damage could not be reported.', true);
+    }
+});
