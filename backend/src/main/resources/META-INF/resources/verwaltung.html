@@ -24,6 +24,9 @@
             border: 1px solid white;
             padding: 8px 16px;
         }
+        a {
+            color: darkorange;
+        }
         .logout {
             padding: 8px 16px;
             color: black;
@@ -39,6 +42,7 @@
 <form action="/logout" method="post">
     <button type="submit" class="logout">Log out</button>
 </form>
+<p id="accounts-link" hidden><a href="/accounts.html">Manage accounts</a></p>
 
 <h2>Add visitor</h2>
 <form id="besucher-formular">
@@ -71,6 +75,19 @@
     <tbody id="antrag-tabelle"></tbody>
 </table>
 
+<h2>Damages</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Reported by</th>
+        <th>Caused by</th>
+    </tr>
+    </thead>
+    <tbody id="schaden-tabelle"></tbody>
+</table>
+
 <h2>Visitors</h2>
 <table>
     <thead>
@@ -79,10 +96,12 @@
         <th>Company</th>
         <th>Reason</th>
         <th>Arrival</th>
+        <th>Departure</th>
     </tr>
     </thead>
     <tbody id="besucher-tabelle"></tbody>
 </table>
+<p id="besucher-meldung"></p>
 
 <script>
     // Nicht (mehr) eingeloggt: Quarkus leitet auf die Login-Seite um
@@ -92,6 +111,39 @@
             return true;
         }
         return false;
+    }
+
+    // "16:30:00" -> "16:30"
+    function uhrzeit(wert) {
+        return wert ? wert.slice(0, 5) : '';
+    }
+
+    // Austrittszeit anzeigen oder, wenn noch keine da ist, nachträglich erfassen
+    function austrittZelle(besucher) {
+        const zelle = document.createElement('td');
+        if (besucher.austritt) {
+            zelle.textContent = uhrzeit(besucher.austritt);
+            return zelle;
+        }
+
+        const feld = document.createElement('input');
+        feld.type = 'time';
+        feld.title = 'Leave empty for current time';
+        const knopf = document.createElement('button');
+        knopf.textContent = 'Check out';
+        knopf.addEventListener('click', async () => {
+            const meldung = document.getElementById('besucher-meldung');
+            const antwort = await fetch(`/besucher/${besucher.id}/austritt`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(feld.value ? { austritt: feld.value } : {})
+            });
+            if (zumLoginWennAbgelaufen(antwort)) return;
+            meldung.textContent = antwort.ok ? '' : 'Error: departure must not be before arrival.';
+            ladeBesucher();
+        });
+        zelle.append(feld, knopf);
+        return zelle;
     }
 
     async function ladeBesucher() {
@@ -107,17 +159,18 @@
         tabelle.innerHTML = '';
 
         if (besucherListe.length === 0) {
-            tabelle.innerHTML = '<tr><td colspan="4">No visitors yet.</td></tr>';
+            tabelle.innerHTML = '<tr><td colspan="5">No visitors yet.</td></tr>';
             return;
         }
 
         for (const besucher of besucherListe) {
             const zeile = document.createElement('tr');
-            for (const wert of [besucher.name, besucher.firma, besucher.grund, besucher.ankunft]) {
+            for (const wert of [besucher.name, besucher.firma, besucher.grund, uhrzeit(besucher.ankunft)]) {
                 const zelle = document.createElement('td');
                 zelle.textContent = wert ?? '';
                 zeile.appendChild(zelle);
             }
+            zeile.appendChild(austrittZelle(besucher));
             tabelle.appendChild(zeile);
         }
     }
@@ -195,6 +248,45 @@
     }
 
     ladeAntraege();
+
+    // Link zur Accountverwaltung nur für Admins zeigen
+    async function zeigeAccountsLink() {
+        const antwort = await fetch('/accounts/ich');
+        if (antwort.ok && !antwort.redirected && (await antwort.json()).admin) {
+            document.getElementById('accounts-link').hidden = false;
+        }
+    }
+
+    zeigeAccountsLink();
+
+    async function ladeSchaeden() {
+        const tabelle = document.getElementById('schaden-tabelle');
+        const antwort = await fetch('/schaeden');
+        if (zumLoginWennAbgelaufen(antwort)) return;
+        if (!antwort.ok) {
+            tabelle.innerHTML = '<tr><td colspan="4">No permission to see damages.</td></tr>';
+            return;
+        }
+        const schaeden = await antwort.json();
+
+        tabelle.innerHTML = '';
+        if (schaeden.length === 0) {
+            tabelle.innerHTML = '<tr><td colspan="4">No damages reported.</td></tr>';
+            return;
+        }
+
+        for (const schaden of schaeden) {
+            const zeile = document.createElement('tr');
+            for (const wert of [schaden.datum, schaden.beschreibung, schaden.melder, schaden.verursacher]) {
+                const zelle = document.createElement('td');
+                zelle.textContent = wert ?? '';
+                zeile.appendChild(zelle);
+            }
+            tabelle.appendChild(zeile);
+        }
+    }
+
+    ladeSchaeden();
 
     document.getElementById('jetzt').addEventListener('click', () => {
               document.querySelector('[name="ankunft"]').value =

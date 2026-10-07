@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EXPass – Report damage</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+        }
+        h1 {
+            color: darkorange;
+        }
+        #schaden-formular {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 320px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        .logout {
+            padding: 8px 16px;
+            color: black;
+            background-color: darkorange;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>EXPass – Report damage</h1>
+
+<form action="/logout" method="post">
+    <button type="submit" class="logout">Log out</button>
+</form>
+
+<h2>Report damage</h2>
+<form id="schaden-formular">
+    <textarea name="beschreibung" rows="4" placeholder="What is damaged? Where?" required></textarea>
+    <label>Date <input name="datum" type="date" required></label>
+    <input name="verursacher" placeholder="Caused by (only if confessed)">
+    <button type="submit">Send report</button>
+</form>
+<p id="meldung"></p>
+
+<script>
+    const datum = document.querySelector('[name="datum"]');
+    const heute = new Date().toLocaleDateString('sv'); // Format JJJJ-MM-TT
+    datum.max = heute;
+    datum.value = heute;
+
+    document.getElementById('schaden-formular').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const meldung = document.getElementById('meldung');
+
+        const daten = Object.fromEntries(new FormData(event.target));
+        if (!daten.verursacher) delete daten.verursacher;
+
+        const antwort = await fetch('/schaeden', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(daten)
+        });
+        // Nicht (mehr) eingeloggt: Quarkus leitet auf die Login-Seite um
+        if (antwort.redirected) {
+            location.href = '/login/';
+            return;
+        }
+
+        if (antwort.ok) {
+            meldung.textContent = 'Damage reported. Thank you!';
+            event.target.reset();
+            datum.value = heute;
+        } else {
+            meldung.textContent = 'Error: damage could not be reported.';
+        }
+    });
+</script>
+</body>
+</html>
