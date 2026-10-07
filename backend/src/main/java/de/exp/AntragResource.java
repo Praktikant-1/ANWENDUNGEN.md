@@ -144,6 +144,8 @@ public class AntragResource {
         besucher.setName(antrag.getName());
         besucher.setFirma(antrag.getFirma());
         besucher.setGrund(antrag.getGrund());
+        besucher.setDatum(antrag.getVon());
+        besucher.setBis(antrag.getBis());
         return besucher;
     }
 

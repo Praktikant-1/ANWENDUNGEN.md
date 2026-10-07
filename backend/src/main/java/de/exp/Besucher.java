@@ -1,5 +1,6 @@
 package de.exp;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class Besucher {
@@ -8,6 +9,9 @@ public class Besucher {
     private String name;
     private String firma;
     private String grund;
+    // Besuchstag; bei mehrtägigen Besuchen (aus einem Antrag) zusätzlich das Enddatum
+    private LocalDate datum;
+    private LocalDate bis;
     private LocalTime ankunft;
     private LocalTime austritt;
 
@@ -60,5 +64,21 @@ public class Besucher {
 
     public void setAustritt(LocalTime austritt) {
         this.austritt = austritt;
+    }
+
+    public LocalDate getDatum() {
+        return datum;
+    }
+
+    public void setDatum(LocalDate datum) {
+        this.datum = datum;
+    }
+
+    public LocalDate getBis() {
+        return bis;
+    }
+
+    public void setBis(LocalDate bis) {
+        this.bis = bis;
     }
 }
