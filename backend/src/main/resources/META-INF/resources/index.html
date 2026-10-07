@@ -33,6 +33,7 @@
 <form id="besucher-formular">
     <input name="name" placeholder="Name" required>
     <input name="firma" placeholder="Company">
+    <input name="grund" placeholder="Reason for visit">
     <input name="ankunft" type="time">
     <button type="submit">Add</button>
     <button type="button" id="jetzt">Now</button>
@@ -47,6 +48,7 @@
     <tr>
         <th>Name</th>
         <th>Company</th>
+        <th>Reason</th>
         <th>Arrival</th>
     </tr>
     </thead>
@@ -68,7 +70,7 @@
 
         for (const besucher of besucherListe) {
             const zeile = document.createElement('tr');
-            for (const wert of [besucher.name, besucher.firma, besucher.ankunft]) {
+            for (const wert of [besucher.name, besucher.firma, besucher.grund, besucher.ankunft]) {
                 const zelle = document.createElement('td');
                 zelle.textContent = wert ?? '';
                 zeile.appendChild(zelle);
