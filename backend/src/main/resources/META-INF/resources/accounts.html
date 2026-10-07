@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EXPass – Accounts</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+        }
+        h1 {
+            color: darkorange;
+        }
+        a {
+            color: darkorange;
+        }
+        #account-formular {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 320px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid white;
+            padding: 8px 16px;
+        }
+    </style>
+</head>
+<body>
+<h1>EXPass – Accounts</h1>
+<p><a href="/verwaltung.html">Back to visitor management</a></p>
+
+<h2>Create account</h2>
+<form id="account-formular">
+    <input name="benutzername" placeholder="Username" required>
+    <input name="passwort" type="password" placeholder="Password (min. 8 characters)" minlength="8" required>
+    <select name="rolle">
+        <option value="MITARBEITER">Employee</option>
+        <option value="VERWALTUNG">Administration</option>
+    </select>
+    <label><input name="admin" type="checkbox"> Admin (only for administration)</label>
+    <button type="submit">Create</button>
+</form>
+<p id="meldung"></p>
+
+<h2>All accounts</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Admin</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody id="account-tabelle"></tbody>
+</table>
+
+<script>
+    const rollenText = { MITARBEITER: 'Employee', VERWALTUNG: 'Administration' };
+    const meldung = document.getElementById('meldung');
+    let ich = '';
+
+    // Nicht (mehr) eingeloggt: Quarkus leitet auf die Login-Seite um
+    function zumLoginWennAbgelaufen(antwort) {
+        if (antwort.redirected) {
+            location.href = '/login/';
+            return true;
+        }
+        return false;
+    }
+
+    async function zeigeFehler(antwort) {
+        const text = await antwort.text();
+        meldung.textContent = 'Error: ' + (text || antwort.status);
+    }
+
+    async function ladeAccounts() {
+        const tabelle = document.getElementById('account-tabelle');
+        const antwort = await fetch('/accounts');
+        if (zumLoginWennAbgelaufen(antwort)) return;
+        if (!antwort.ok) {
+            tabelle.innerHTML = '<tr><td colspan="4">No permission to see accounts.</td></tr>';
+            return;
+        }
+        const accounts = await antwort.json();
+        accounts.sort((a, b) => a.benutzername.localeCompare(b.benutzername));
+
+        tabelle.innerHTML = '';
+        for (const account of accounts) {
+            const zeile = document.createElement('tr');
+            for (const wert of [account.benutzername, rollenText[account.rolle], account.admin ? 'Yes' : 'No']) {
+                const zelle = document.createElement('td');
+                zelle.textContent = wert;
+                zeile.appendChild(zelle);
+            }
+
+            const aktionen = document.createElement('td');
+            if (account.benutzername === ich) {
+                aktionen.textContent = '(you)';
+            } else {
+                const knoepfe = [];
+                if (account.rolle === 'VERWALTUNG') {
+                    knoepfe.push(account.admin
+                        ? ['Remove admin', 'POST', `/accounts/${encodeURIComponent(account.benutzername)}/admin-entziehen`]
+                        : ['Make admin', 'POST', `/accounts/${encodeURIComponent(account.benutzername)}/admin-geben`]);
+                }
+                knoepfe.push(['Delete', 'DELETE', `/accounts/${encodeURIComponent(account.benutzername)}`]);
+
+                for (const [text, methode, url] of knoepfe) {
+                    const knopf = document.createElement('button');
+                    knopf.textContent = text;
+                    knopf.addEventListener('click', async () => {
+                        if (methode === 'DELETE' && !confirm(`Delete account "${account.benutzername}"?`)) return;
+                        const antwort = await fetch(url, { method: methode });
+                        if (zumLoginWennAbgelaufen(antwort)) return;
+                        if (antwort.ok) {
+                            meldung.textContent = '';
+                        } else {
+                            await zeigeFehler(antwort);
+                        }
+                        ladeAccounts();
+                    });
+                    aktionen.appendChild(knopf);
+                }
+            }
+            zeile.appendChild(aktionen);
+            tabelle.appendChild(zeile);
+        }
+    }
+
+    document.getElementById('account-formular').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formular = event.target;
+        const daten = {
+            benutzername: formular.benutzername.value,
+            passwort: formular.passwort.value,
+            rolle: formular.rolle.value,
+            admin: formular.admin.checked
+        };
+
+        const antwort = await fetch('/accounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(daten)
+        });
+        if (zumLoginWennAbgelaufen(antwort)) return;
+
+        if (antwort.ok) {
+            meldung.textContent = 'Account created.';
+            formular.reset();
+            ladeAccounts();
+        } else {
+            await zeigeFehler(antwort);
+        }
+    });
+
+    async function start() {
+        const antwort = await fetch('/accounts/ich');
+        if (zumLoginWennAbgelaufen(antwort)) return;
+        if (antwort.ok) {
+            ich = (await antwort.json()).benutzername;
+        }
+        ladeAccounts();
+    }
+
+    start();
+</script>
+</body>
+</html>
