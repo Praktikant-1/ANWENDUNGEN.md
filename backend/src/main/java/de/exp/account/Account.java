@@ -1,16 +1,27 @@
 package de.exp.account;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class Account {
+// @Entity: Jeder Account wird als Zeile in der Tabelle "Account" gespeichert
+@Entity
+public class Account extends PanacheEntityBase {
 
     public enum Rolle { MITARBEITER, VERWALTUNG }
 
+    // Der Benutzername ist eindeutig und dient deshalb direkt als Schlüssel
+    @Id
     private String benutzername;
     private String passwortHash;
+    // Als Text speichern ("VERWALTUNG"), nicht als Zahl
+    @Enumerated(EnumType.STRING)
     private Rolle rolle;
     private boolean admin;
 
