@@ -187,3 +187,37 @@ tbody tr:hover {
     font-size: 0.85em;
     color: #bbb;
 }
+
+/* Handy: Leiste in zwei Zeilen (Menü, Schaden melden, Sprache | Suche),
+   Formular untereinander und Tabellen etwas enger */
+@media (max-width: 600px) {
+    .schnellwahl {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+    .schnellwahl input {
+        order: 1;
+        flex: 1 1 calc(100% - 90px);
+        max-width: none;
+    }
+    #treffer {
+        order: 2;
+    }
+    .sprungmenue summary,
+    .schaden-melden {
+        padding: 6px 10px;
+    }
+    /* Leiste ist jetzt höher */
+    h2 {
+        scroll-margin-top: 120px;
+    }
+    #besucher-formular {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    th, td {
+        padding: 6px 10px;
+    }
+}

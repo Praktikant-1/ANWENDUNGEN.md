@@ -44,6 +44,16 @@ function istHeute(besucher) {
     return besucher.datum <= heute() && heute() <= (besucher.bis ?? besucher.datum);
 }
 
+// Ist der Besucher gerade im Haus? Heute da, Ankunft schon erreicht und noch nicht gegangen.
+// Eine beim Anlegen eingetragene Ankunft kann noch in der Zukunft liegen,
+// ebenso eine nachgetragene Austrittszeit – beides zählt erst ab der Uhrzeit.
+function istImHaus(besucher) {
+    const jetzt = new Date().toLocaleTimeString('sv'); // "14:05:03", vergleichbar mit "09:15:00"
+    return istHeute(besucher)
+        && !!besucher.ankunft && besucher.ankunft <= jetzt
+        && (!besucher.austritt || besucher.austritt > jetzt);
+}
+
 // Eine Zahl im Überblick oben setzen
 function zeigeZahl(id, zahl) {
     document.getElementById(id).textContent = zahl;
@@ -125,7 +135,7 @@ async function ladeBesucher() {
     const besucherListe = await antwort.json();
     const heuteDa = besucherListe.filter(istHeute);
     zeigeZahl('zahl-erwartet', heuteDa.length);
-    zeigeZahl('zahl-anwesend', heuteDa.filter(b => b.ankunft && !b.austritt).length);
+    zeigeZahl('zahl-anwesend', besucherListe.filter(istImHaus).length);
 
     tabelle.innerHTML = '';
 
