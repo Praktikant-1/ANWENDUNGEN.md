@@ -10,17 +10,14 @@ import jakarta.persistence.Id;
 import java.util.HashSet;
 import java.util.Set;
 
-// @Entity: Jeder Account wird als Zeile in der Tabelle "Account" gespeichert
 @Entity
 public class Account extends PanacheEntityBase {
 
     public enum Rolle { MITARBEITER, VERWALTUNG }
 
-    // Der Benutzername ist eindeutig und dient deshalb direkt als Schlüssel
     @Id
     private String benutzername;
     private String passwortHash;
-    // Als Text speichern ("VERWALTUNG"), nicht als Zahl
     @Enumerated(EnumType.STRING)
     private Rolle rolle;
     private boolean admin;
@@ -35,7 +32,6 @@ public class Account extends PanacheEntityBase {
         this.admin = admin;
     }
 
-    // Rollen für @RolesAllowed, z. B. ["verwaltung", "admin"]
     @JsonIgnore
     public Set<String> getRollen() {
         Set<String> rollen = new HashSet<>();
@@ -54,7 +50,6 @@ public class Account extends PanacheEntityBase {
         this.benutzername = benutzername;
     }
 
-    // Der Hash wird nie an den Browser geschickt
     @JsonIgnore
     public String getPasswortHash() {
         return passwortHash;

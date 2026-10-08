@@ -1,6 +1,5 @@
 package de.exp.besucher;
 
-import de.exp.antrag.Antrag;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +9,6 @@ import jakarta.persistence.Id;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-// @Entity: Jeder Besucher wird als Zeile in der Tabelle "Besucher" gespeichert
 @Entity
 public class Besucher extends PanacheEntityBase {
 
@@ -20,10 +18,10 @@ public class Besucher extends PanacheEntityBase {
     private Long id;
     private String name;
     private String firma;
-    // Freitext: mehr Platz als die üblichen 255 Zeichen (kommt auch aus dem Antrag)
+
     @Column(length = 2000)
+
     private String grund;
-    // Besuchstag; bei mehrtägigen Besuchen (aus einem Antrag) zusätzlich das Enddatum
     private LocalDate datum;
     private LocalDate bis;
     private LocalTime ankunft;

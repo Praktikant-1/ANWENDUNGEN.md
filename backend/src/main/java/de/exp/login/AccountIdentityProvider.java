@@ -13,7 +13,6 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-// Prüft beim Login (Formular) Benutzername und Passwort
 @ApplicationScoped
 public class AccountIdentityProvider implements IdentityProvider<UsernamePasswordAuthenticationRequest> {
 

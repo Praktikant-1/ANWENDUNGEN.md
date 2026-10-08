@@ -32,7 +32,6 @@ public class AccountResource {
         return accountService.alle();
     }
 
-    // Für jeden eingeloggten Benutzer: wer bin ich, bin ich Admin?
     @GET
     @Path("/ich")
     @Authenticated
@@ -63,7 +62,6 @@ public class AccountResource {
         return account;
     }
 
-    // @Transactional: der Account wird hier verändert, das soll in der Datenbank landen
     @POST
     @Path("/{benutzername}/admin-geben")
     @Transactional
@@ -90,8 +88,6 @@ public class AccountResource {
         accountService.loeschen(benutzername);
     }
 
-    // Man darf sich nicht selbst löschen oder den Admin-Status nehmen,
-    // so bleibt immer mindestens ein Admin übrig
     private Account findeAnderen(String benutzername) {
         if (benutzername.equals(identity.getPrincipal().getName())) {
             throw fehler(Response.Status.BAD_REQUEST, "You cannot change your own account.");
@@ -109,7 +105,6 @@ public class AccountResource {
         }
     }
 
-    // Fehler mit Text, den accounts.html anzeigen kann
     private static WebApplicationException fehler(Response.Status status, String text) {
         return new WebApplicationException(
                 Response.status(status).entity(text).type(MediaType.TEXT_PLAIN).build());

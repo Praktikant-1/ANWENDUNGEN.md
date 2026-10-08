@@ -17,11 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// Spamschutz: Wer mit derselben E-Mail-Adresse zu viele Anfragen schickt, wird gesperrt.
-// 1. Sperre: 24 Stunden, 2. Sperre: 1 Monat, ab der 3. Sperre: dauerhaft.
-// Die Sperren stehen in der Datenbank, die Versuche der letzten 30 Minuten nur im Speicher
-// (nach einem Neustart fängt das Zählen einfach neu an).
-// @Singleton statt @ApplicationScoped, damit der Test uhr und mailService austauschen kann
 @Singleton
 @Transactional
 public class SperrlisteService {
@@ -32,14 +27,10 @@ public class SperrlisteService {
     @Inject
     MailService mailService;
 
-    // Austauschbar, damit Tests die Zeit vorspulen können
     Clock uhr = Clock.systemDefaultZone();
 
-    // Nicht private, damit der Test die Versuche zurücksetzen kann
     final Map<String, Deque<LocalDateTime>> versuche = new HashMap<>();
 
-    // Zählt einen Versuch (Antrag stellen, Code anfordern) für diese Adresse.
-    // Gibt false zurück, wenn die Adresse gesperrt ist und die Anfrage abgelehnt werden soll.
     public boolean versuchErlaubt(String email) {
         String adresse = MailService.normalisieren(email);
         SperrEintrag neueSperre;
@@ -56,7 +47,6 @@ public class SperrlisteService {
             if (zeiten.size() < MAX_VERSUCHE) {
                 return true;
             }
-            // Der 15. Versuch geht noch durch, alle weiteren werden abgelehnt
             versuche.remove(adresse);
             neueSperre = sperren(adresse, jetzt);
         }
@@ -74,7 +64,6 @@ public class SperrlisteService {
         return eintrag != null && aktiv(eintrag);
     }
 
-    // Neueste Sperren zuerst. Kopien, damit "gesperrt" nicht im gespeicherten Eintrag landet.
     public synchronized List<SperrEintrag> alle() {
         List<SperrEintrag> eintraege = SperrEintrag.listAll();
         return eintraege.stream()
@@ -83,8 +72,6 @@ public class SperrlisteService {
                 .toList();
     }
 
-    // Hebt die aktuelle Sperre auf. Der Eintrag (und die Anzahl der Sperren) bleibt erhalten,
-    // die nächste Sperre wird also trotzdem länger. Gibt null zurück, wenn nichts gesperrt ist.
     public synchronized SperrEintrag aufheben(String email, String benutzername) {
         SperrEintrag eintrag = SperrEintrag.findById(MailService.normalisieren(email));
         if (eintrag == null || !aktiv(eintrag)) {

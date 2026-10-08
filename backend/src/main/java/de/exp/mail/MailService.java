@@ -36,8 +36,6 @@ public class MailService {
     private final Map<String, ScheduledFuture<?>> geplanteMails = new ConcurrentHashMap<>();
     private final Map<String, Code> codes = new ConcurrentHashMap<>();
 
-    // Debouncing: Kommt für dieselbe Adresse innerhalb der Wartezeit eine neue Anfrage,
-    // wird die geplante Mail verworfen und die Wartezeit beginnt von vorn.
     public void codeAnfordern(String email) {
         String adresse = normalisieren(email);
         geplanteMails.compute(adresse, (key, alteMail) -> {
@@ -59,7 +57,7 @@ public class MailService {
             codes.remove(adresse);
             return true;
         }
-        // Gegen Durchprobieren: nach zu vielen Fehlversuchen ist der Code verbraucht
+
         if (code.fehlversuche() + 1 >= MAX_FEHLVERSUCHE) {
             codes.remove(adresse);
         } else {
@@ -86,7 +84,6 @@ public class MailService {
                 text.toString()));
     }
 
-    // 1. Sperre: 24 Stunden, 2. Sperre: 1 Monat, ab der 3.: dauerhaft (gesperrtBis == null)
     public void sperreSenden(String adresse, int anzahlSperren, LocalDateTime gesperrtBis) {
         String dauer = switch (anzahlSperren) {
             case 1 -> "for 24 hours (until " + gesperrtBis.toString().replace('T', ' ') + ")";

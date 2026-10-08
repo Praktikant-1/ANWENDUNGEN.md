@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
-// Speichert und lädt Besucher, damit auch AntragResource beim Annehmen Besucher anlegen kann
+
 @ApplicationScoped
 public class BesucherService {
 
@@ -25,7 +25,6 @@ public class BesucherService {
 
     @Transactional
     public Besucher hinzufuegen(Besucher besucher) {
-        // Eine mitgeschickte id ignorieren, die vergibt die Datenbank
         besucher.setId(null);
         besucher.setAustritt(null);
         if (besucher.getDatum() == null) {

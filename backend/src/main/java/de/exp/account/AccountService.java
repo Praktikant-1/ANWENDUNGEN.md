@@ -9,13 +9,11 @@ import jakarta.transaction.Transactional;
 
 import java.util.List;
 
-// @Transactional an der Klasse: jede Methode läuft in einer Transaktion,
-// so funktioniert die Datenbank auch beim Login (dort gibt es sonst keine)
+
 @ApplicationScoped
 @Transactional
 public class AccountService {
 
-    // Start-Accounts, aber nur wenn es noch gar keine Accounts gibt (nur zum Entwickeln)
     void startAccountsAnlegen(@Observes StartupEvent start) {
         if (Account.count() > 0) {
             return;
@@ -33,7 +31,6 @@ public class AccountService {
         return Account.findById(benutzername);
     }
 
-    // Gibt null zurück, wenn es den Benutzernamen schon gibt
     public Account erstellen(String benutzername, String passwort, Account.Rolle rolle, boolean admin) {
         if (Account.findById(benutzername) != null) {
             return null;
@@ -42,8 +39,7 @@ public class AccountService {
         account.persist();
         return account;
     }
-
-    // Gibt den Account zurück, wenn Benutzername und Passwort stimmen, sonst null
+    
     public Account pruefeLogin(String benutzername, String passwort) {
         Account account = Account.findById(benutzername);
         if (account == null || !BcryptUtil.matches(passwort, account.getPasswortHash())) {

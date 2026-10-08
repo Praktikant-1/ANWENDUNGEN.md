@@ -19,15 +19,12 @@ public class SchadenResource {
     @Inject
     SecurityIdentity identity;
 
-    // Die Verwaltung sieht die Schadensliste
     @GET
     @RolesAllowed("verwaltung")
     public List<Schaden> alle() {
         return Schaden.listAll(Sort.by("id"));
     }
 
-    // Mitarbeiter und Verwaltung (inkl. Admins) melden Schäden,
-    // der Melder ist immer der eingeloggte Benutzer
     @POST
     @RolesAllowed({"mitarbeiter", "verwaltung"})
     @Transactional
@@ -44,7 +41,7 @@ public class SchadenResource {
         if (schaden.getVerursacher() != null && schaden.getVerursacher().isBlank()) {
             schaden.setVerursacher(null);
         }
-        // Eine mitgeschickte id ignorieren, die vergibt die Datenbank
+
         schaden.setId(null);
         schaden.setMelder(identity.getPrincipal().getName());
         schaden.persist();

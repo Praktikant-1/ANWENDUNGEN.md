@@ -11,12 +11,10 @@ import jakarta.ws.rs.Path;
 
 import java.util.List;
 
-// Die Sperrliste sehen und bearbeiten nur Admins (nicht Verwaltung, nicht Mitarbeiter)
 @Path("/sperrliste")
 @RolesAllowed("admin")
 public class SperrlisteResource {
 
-    // E-Mail im Body statt im Pfad, sonst Ärger mit Zeichen wie + oder /
     public record Aufhebung(String email) {
     }
 

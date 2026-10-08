@@ -7,22 +7,20 @@ import jakarta.persistence.Transient;
 
 import java.time.LocalDateTime;
 
-// Ein Eintrag pro E-Mail-Adresse. Bleibt auch nach Ablauf oder Aufhebung der Sperre
-// in der Liste, damit man sieht, wie oft die Adresse schon gesperrt wurde.
+
 @Entity
 public class SperrEintrag extends PanacheEntityBase {
 
-    // Pro Adresse gibt es nur einen Eintrag, deshalb ist sie der Schlüssel
     @Id
     private String email;
     private int anzahlSperren;
     private LocalDateTime gesperrtAm;
-    // null = dauerhaft gesperrt
+
     private LocalDateTime gesperrtBis;
-    // Wer (Benutzername) die letzte Sperre wann vorzeitig aufgehoben hat
+
     private String aufgehobenVon;
     private LocalDateTime aufgehobenAm;
-    // Wird beim Abrufen der Liste gesetzt; @Transient: keine Spalte in der Datenbank
+
     @Transient
     private boolean gesperrt;
 
