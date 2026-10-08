@@ -1,6 +1,10 @@
 package de.exp.sperrliste;
 
 import de.exp.mail.MailService;
+import io.quarkus.narayana.jta.QuarkusTransaction;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+// @QuarkusTest: startet die App mit einer Test-Datenbank (Docker), weil die Sperren dort gespeichert werden
+@QuarkusTest
 class SperrlisteServiceTest {
 
     private static final String EMAIL = "spam@example.com";
@@ -32,17 +38,30 @@ class SperrlisteServiceTest {
         }
     }
 
-    private SperrlisteService service;
+    @Inject
+    SperrlisteService service;
+
+    private MailService echterMailService;
     private TestMailService mails;
     private Instant jetzt;
 
+    // Jeder Test beginnt mit leerer Sperrliste, ohne gezählte Versuche
     @BeforeEach
     void vorbereiten() {
+        QuarkusTransaction.requiringNew().run(() -> SperrEintrag.deleteAll());
+        service.versuche.clear();
         mails = new TestMailService();
-        service = new SperrlisteService();
+        echterMailService = service.mailService;
         service.mailService = mails;
         jetzt = Instant.parse("2026-10-08T10:00:00Z");
         stelleUhr();
+    }
+
+    // Uhr und MailService zurückstellen, damit andere Tests den echten Service bekommen
+    @AfterEach
+    void aufraeumen() {
+        service.mailService = echterMailService;
+        service.uhr = Clock.systemDefaultZone();
     }
 
     private void stelleUhr() {

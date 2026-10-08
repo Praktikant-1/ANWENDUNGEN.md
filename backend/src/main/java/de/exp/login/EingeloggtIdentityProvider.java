@@ -27,10 +27,13 @@ public class EingeloggtIdentityProvider implements IdentityProvider<TrustedAuthe
     @Override
     public Uni<SecurityIdentity> authenticate(TrustedAuthenticationRequest request,
                                               AuthenticationRequestContext context) {
-        Account account = accountService.finde(request.getPrincipal());
-        if (account == null) {
-            return Uni.createFrom().failure(new AuthenticationFailedException());
-        }
-        return Uni.createFrom().item(AccountIdentityProvider.identityFuer(account));
+        // Die Datenbank darf hier nicht direkt benutzt werden, deshalb runBlocking (wie beim Login)
+        return context.runBlocking(() -> {
+            Account account = accountService.finde(request.getPrincipal());
+            if (account == null) {
+                throw new AuthenticationFailedException();
+            }
+            return AccountIdentityProvider.identityFuer(account);
+        });
     }
 }

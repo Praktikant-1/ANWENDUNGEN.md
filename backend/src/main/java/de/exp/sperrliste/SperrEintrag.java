@@ -1,11 +1,19 @@
 package de.exp.sperrliste;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
+
 import java.time.LocalDateTime;
 
 // Ein Eintrag pro E-Mail-Adresse. Bleibt auch nach Ablauf oder Aufhebung der Sperre
 // in der Liste, damit man sieht, wie oft die Adresse schon gesperrt wurde.
-public class SperrEintrag {
+@Entity
+public class SperrEintrag extends PanacheEntityBase {
 
+    // Pro Adresse gibt es nur einen Eintrag, deshalb ist sie der Schlüssel
+    @Id
     private String email;
     private int anzahlSperren;
     private LocalDateTime gesperrtAm;
@@ -14,7 +22,8 @@ public class SperrEintrag {
     // Wer (Benutzername) die letzte Sperre wann vorzeitig aufgehoben hat
     private String aufgehobenVon;
     private LocalDateTime aufgehobenAm;
-    // Wird beim Abrufen der Liste gesetzt
+    // Wird beim Abrufen der Liste gesetzt; @Transient: keine Spalte in der Datenbank
+    @Transient
     private boolean gesperrt;
 
     public SperrEintrag() {

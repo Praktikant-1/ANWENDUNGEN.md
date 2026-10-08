@@ -4,6 +4,7 @@ import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -62,8 +63,10 @@ public class AccountResource {
         return account;
     }
 
+    // @Transactional: der Account wird hier verändert, das soll in der Datenbank landen
     @POST
     @Path("/{benutzername}/admin-geben")
+    @Transactional
     public Account adminGeben(@PathParam("benutzername") String benutzername) {
         Account account = findeAnderen(benutzername);
         pruefeAdminNurFuerVerwaltung(account.getRolle(), true);
@@ -73,6 +76,7 @@ public class AccountResource {
 
     @POST
     @Path("/{benutzername}/admin-entziehen")
+    @Transactional
     public Account adminEntziehen(@PathParam("benutzername") String benutzername) {
         Account account = findeAnderen(benutzername);
         account.setAdmin(false);
