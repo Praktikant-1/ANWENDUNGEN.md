@@ -2,8 +2,9 @@ package de.exp.sperrliste;
 
 import de.exp.mail.MailService;
 import io.quarkus.logging.Log;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import jakarta.transaction.Transactional;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -18,7 +19,11 @@ import java.util.Map;
 
 // Spamschutz: Wer mit derselben E-Mail-Adresse zu viele Anfragen schickt, wird gesperrt.
 // 1. Sperre: 24 Stunden, 2. Sperre: 1 Monat, ab der 3. Sperre: dauerhaft.
-@ApplicationScoped
+// Die Sperren stehen in der Datenbank, die Versuche der letzten 30 Minuten nur im Speicher
+// (nach einem Neustart fängt das Zählen einfach neu an).
+// @Singleton statt @ApplicationScoped, damit der Test uhr und mailService austauschen kann
+@Singleton
+@Transactional
 public class SperrlisteService {
 
     static final int MAX_VERSUCHE = 15;
@@ -30,8 +35,8 @@ public class SperrlisteService {
     // Austauschbar, damit Tests die Zeit vorspulen können
     Clock uhr = Clock.systemDefaultZone();
 
-    private final Map<String, Deque<LocalDateTime>> versuche = new HashMap<>();
-    private final Map<String, SperrEintrag> eintraege = new HashMap<>();
+    // Nicht private, damit der Test die Versuche zurücksetzen kann
+    final Map<String, Deque<LocalDateTime>> versuche = new HashMap<>();
 
     // Zählt einen Versuch (Antrag stellen, Code anfordern) für diese Adresse.
     // Gibt false zurück, wenn die Adresse gesperrt ist und die Anfrage abgelehnt werden soll.
@@ -65,13 +70,14 @@ public class SperrlisteService {
     }
 
     public synchronized boolean istGesperrt(String email) {
-        SperrEintrag eintrag = eintraege.get(MailService.normalisieren(email));
+        SperrEintrag eintrag = SperrEintrag.findById(MailService.normalisieren(email));
         return eintrag != null && aktiv(eintrag);
     }
 
     // Neueste Sperren zuerst. Kopien, damit "gesperrt" nicht im gespeicherten Eintrag landet.
     public synchronized List<SperrEintrag> alle() {
-        return eintraege.values().stream()
+        List<SperrEintrag> eintraege = SperrEintrag.listAll();
+        return eintraege.stream()
                 .map(this::kopieMitStatus)
                 .sorted(Comparator.comparing(SperrEintrag::getGesperrtAm).reversed())
                 .toList();
@@ -80,7 +86,7 @@ public class SperrlisteService {
     // Hebt die aktuelle Sperre auf. Der Eintrag (und die Anzahl der Sperren) bleibt erhalten,
     // die nächste Sperre wird also trotzdem länger. Gibt null zurück, wenn nichts gesperrt ist.
     public synchronized SperrEintrag aufheben(String email, String benutzername) {
-        SperrEintrag eintrag = eintraege.get(MailService.normalisieren(email));
+        SperrEintrag eintrag = SperrEintrag.findById(MailService.normalisieren(email));
         if (eintrag == null || !aktiv(eintrag)) {
             return null;
         }
@@ -90,7 +96,11 @@ public class SperrlisteService {
     }
 
     private SperrEintrag sperren(String adresse, LocalDateTime jetzt) {
-        SperrEintrag eintrag = eintraege.computeIfAbsent(adresse, SperrEintrag::new);
+        SperrEintrag eintrag = SperrEintrag.findById(adresse);
+        if (eintrag == null) {
+            eintrag = new SperrEintrag(adresse);
+            eintrag.persist();
+        }
         int anzahl = eintrag.getAnzahlSperren() + 1;
         LocalDateTime beginn = jetzt.truncatedTo(ChronoUnit.MINUTES);
         eintrag.setAnzahlSperren(anzahl);
