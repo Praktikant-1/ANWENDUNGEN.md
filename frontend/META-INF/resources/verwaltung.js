@@ -209,6 +209,13 @@ async function ladeAntraege() {
         if (antrag.ablehnGrund) {
             statusZelle.append(' ' + antrag.ablehnGrund);
         }
+        // Angenommen: Knopf darunter, öffnet den Besucherausweis in einem neuen Tab
+        if (antrag.status === 'ANGENOMMEN' && antrag.besucherId) {
+            const ausweisKnopf = knopf(t('verwaltung.ausweis'),
+                () => window.open(`/antraege/${antrag.id}/ausweis`, '_blank'));
+            ausweisKnopf.className = 'ausweis-knopf';
+            statusZelle.append(document.createElement('br'), ausweisKnopf);
+        }
         zeile.appendChild(statusZelle);
 
         // Offen: Knöpfe zum Entscheiden, sonst wer wann entschieden hat
@@ -447,6 +454,8 @@ document.getElementById('schaden-melden').addEventListener('click', () => {
     schadenDatum.value = heute();
     schadenDialog.showModal();
 });
+
+document.getElementById('schaden-datum-heute').addEventListener('click', () => schadenDatum.value = heute());
 
 document.getElementById('schaden-abbrechen').addEventListener('click', () => schadenDialog.close());
 
