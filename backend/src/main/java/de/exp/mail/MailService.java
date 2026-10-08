@@ -70,7 +70,6 @@ public class MailService {
         return false;
     }
 
-    // Bei Annahme hängt der Besuchsausweis mit QR-Code als PDF an der Mail
     public void entscheidungSenden(Antrag antrag, Besucher besucher) {
         boolean angenommen = antrag.getStatus() == Antrag.Status.ANGENOMMEN;
         StringBuilder text = new StringBuilder()
@@ -91,7 +90,7 @@ public class MailService {
                 "EXPass – Your visit request was " + (angenommen ? "accepted" : "rejected"),
                 text.toString());
         if (angenommen && besucher != null) {
-            mail.addAttachment("visitor-pass.pdf", besuchsausweis.erstellen(antrag.getName(), besucher.getQrCode()), "application/pdf");
+            mail.addAttachment("visitor-pass.pdf", besuchsausweis.erstellen(antrag, besucher.getQrCode()), "application/pdf");
         }
         mailer.send(mail);
     }
