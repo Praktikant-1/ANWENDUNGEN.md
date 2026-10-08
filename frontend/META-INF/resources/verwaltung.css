@@ -187,3 +187,59 @@ tbody tr:hover {
     font-size: 0.85em;
     color: #bbb;
 }
+
+/* Handy: Leiste in zwei Zeilen (Menü, Schaden melden, Sprache | Suche über die ganze Breite),
+   Formular untereinander und Tabellen etwas enger */
+@media (max-width: 600px) {
+    /* Nichts darf die Seite seitlich verbreitern, sonst ist sie nach links verschoben */
+    html {
+        overflow-x: clip;
+    }
+    .schnellwahl {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+    .schnellwahl input {
+        order: 1;
+        flex: 1 1 100%;
+        max-width: none;
+        padding-right: 80px;
+    }
+    /* Trefferzahl rechts im Suchfeld statt in einer eigenen Zeile */
+    #treffer {
+        position: absolute;
+        right: 22px;
+        bottom: 17px;
+    }
+    .sprungmenue summary,
+    .schaden-melden {
+        padding: 6px 10px;
+        font-size: 0.9em;
+    }
+    /* Leiste ist jetzt höher */
+    h2 {
+        scroll-margin-top: 120px;
+    }
+    #besucher-formular {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    th, td {
+        padding: 6px 10px;
+    }
+}
+/* Sehr schmale Handys: etwas kleiner, damit die erste Zeile nicht umbricht */
+@media (max-width: 380px) {
+    .schnellwahl {
+        gap: 6px;
+        padding: 8px;
+    }
+    .sprungmenue summary,
+    .schaden-melden,
+    .schnellwahl .sprachwahl button {
+        padding: 5px 7px;
+        font-size: 0.8em;
+    }
+}
