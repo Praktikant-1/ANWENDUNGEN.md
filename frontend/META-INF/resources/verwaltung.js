@@ -36,6 +36,19 @@ function zeitraum(datum, bis) {
     return bis && bis !== datum ? `${datum} – ${bis}` : (datum ?? '');
 }
 
+// Heutiges Datum als "2026-10-08" (in lokaler Zeit)
+const heute = () => new Date().toLocaleDateString('sv');
+
+// Ist der Besucher heute da? Mehrtägige Besuche gehen von datum bis bis
+function istHeute(besucher) {
+    return besucher.datum <= heute() && heute() <= (besucher.bis ?? besucher.datum);
+}
+
+// Eine Zahl im Überblick oben setzen
+function zeigeZahl(id, zahl) {
+    document.getElementById(id).textContent = zahl;
+}
+
 // Ankunftszeit anzeigen oder, wenn noch keine da ist, nachträglich erfassen
 function ankunftZelle(besucher) {
     const zelle = document.createElement('td');
@@ -110,6 +123,9 @@ async function ladeBesucher() {
         return;
     }
     const besucherListe = await antwort.json();
+    const heuteDa = besucherListe.filter(istHeute);
+    zeigeZahl('zahl-erwartet', heuteDa.length);
+    zeigeZahl('zahl-anwesend', heuteDa.filter(b => b.ankunft && !b.austritt).length);
 
     tabelle.innerHTML = '';
 
@@ -168,6 +184,7 @@ async function ladeAntraege() {
     }
     const antraege = await antwort.json();
     const istAdmin = (await ich).admin;
+    zeigeZahl('zahl-offen', antraege.filter(a => a.status === 'OFFEN').length);
     tabelle.innerHTML = '';
 
     if (antraege.length === 0) {
@@ -272,6 +289,7 @@ async function ladeSchaeden() {
         return;
     }
     const schaeden = await antwort.json();
+    zeigeZahl('zahl-schaeden', schaeden.filter(s => s.datum === heute()).length);
 
     tabelle.innerHTML = '';
     if (schaeden.length === 0) {
@@ -299,7 +317,6 @@ document.getElementById('jetzt').addEventListener('click', () => {
 
 // Datum im Formular mit heute vorbelegen (auch nach dem Zurücksetzen)
 const datumFeld = document.querySelector('#besucher-formular [name="datum"]');
-const heute = () => new Date().toLocaleDateString('sv');
 datumFeld.value = heute();
 document.getElementById('besucher-formular').addEventListener('reset', () => {
     setTimeout(() => datumFeld.value = heute());

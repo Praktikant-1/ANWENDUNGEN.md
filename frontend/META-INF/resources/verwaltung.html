@@ -46,6 +46,17 @@
 </form>
 <p id="accounts-link" hidden><a href="/accounts.html" data-i18n="verwaltung.accountsLink">Manage accounts</a></p>
 
+<!-- Überblick für heute, die Zahlen setzt verwaltung.js beim Laden der Listen -->
+<section class="karte">
+<h2 data-i18n="uebersicht.titel">Today</h2>
+<div class="uebersicht">
+    <div class="kennzahl"><span id="zahl-anwesend" class="zahl">–</span><span data-i18n="uebersicht.anwesend">On site now</span></div>
+    <div class="kennzahl"><span id="zahl-erwartet" class="zahl">–</span><span data-i18n="uebersicht.erwartet">Visitors expected today</span></div>
+    <div class="kennzahl"><span id="zahl-schaeden" class="zahl">–</span><span data-i18n="uebersicht.schaeden">Damages reported today</span></div>
+    <div class="kennzahl"><span id="zahl-offen" class="zahl">–</span><span data-i18n="uebersicht.offen">Open requests</span></div>
+</div>
+</section>
+
 <section class="karte">
 <h2 id="bereich-hinzufuegen" data-i18n="verwaltung.hinzufuegenTitel">Add visitor</h2>
 <form id="besucher-formular">

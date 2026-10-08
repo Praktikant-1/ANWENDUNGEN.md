@@ -88,6 +88,11 @@ const TEXTE = {
         // Verwaltung
         'verwaltung.seitentitel': 'EXPass – Besucherverwaltung',
         'verwaltung.springen': 'Springe zu ▾',
+        'uebersicht.titel': 'Heute',
+        'uebersicht.anwesend': 'Gerade im Haus',
+        'uebersicht.erwartet': 'Besucher heute erwartet',
+        'uebersicht.schaeden': 'Schäden heute gemeldet',
+        'uebersicht.offen': 'Offene Anfragen',
         'verwaltung.hinzufuegenTitel': 'Besucher hinzufügen',
         'verwaltung.antraegeTitel': 'Anfragen',
         'verwaltung.schaedenTitel': 'Schäden',
@@ -218,6 +223,11 @@ const TEXTE = {
 
         'verwaltung.seitentitel': 'EXPass – Visitor Management',
         'verwaltung.springen': 'Jump to ▾',
+        'uebersicht.titel': 'Today',
+        'uebersicht.anwesend': 'On site now',
+        'uebersicht.erwartet': 'Visitors expected today',
+        'uebersicht.schaeden': 'Damages reported today',
+        'uebersicht.offen': 'Open requests',
         'verwaltung.hinzufuegenTitel': 'Add visitor',
         'verwaltung.antraegeTitel': 'Requests',
         'verwaltung.schaedenTitel': 'Damages',
