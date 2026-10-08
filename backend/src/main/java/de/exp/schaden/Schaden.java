@@ -1,6 +1,7 @@
 package de.exp.schaden;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -13,6 +14,8 @@ public class Schaden extends PanacheEntityBase {
     @Id
     @GeneratedValue
     private Long id;
+    // Freitext: mehr Platz als die üblichen 255 Zeichen
+    @Column(length = 2000)
     private String beschreibung;
     private LocalDate datum;
     private String melder;

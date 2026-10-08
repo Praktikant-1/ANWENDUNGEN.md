@@ -5,10 +5,13 @@ import de.exp.besucher.BesucherService;
 import de.exp.mail.MailService;
 import de.exp.sperrliste.SperrlisteService;
 import io.quarkus.logging.Log;
+import io.quarkus.panache.common.Sort;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.ForbiddenException;
@@ -22,8 +25,6 @@ import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Path("/antraege")
 public class AntragResource {
@@ -48,21 +49,17 @@ public class AntragResource {
     @Inject
     SecurityIdentity identity;
 
-    private final List<Antrag> antraege = new CopyOnWriteArrayList<>();
-    private final AtomicLong naechsteId = new AtomicLong(1);
-
     // Unbestätigte Anträge sieht die Verwaltung nicht
     @GET
     @RolesAllowed("verwaltung")
     public List<Antrag> alle() {
-        return antraege.stream()
-                .filter(a -> a.getStatus() != Antrag.Status.UNBESTAETIGT)
-                .toList();
+        return Antrag.list("status != ?1", Sort.by("id"), Antrag.Status.UNBESTAETIGT);
     }
 
     // Öffentlich: Besucher stellen hier ihren Antrag
     @POST
     @PermitAll
+    @Transactional
     public Antrag stellen(Antrag antrag) {
         if (leer(antrag.getName()) || leer(antrag.getGrund())
                 || antrag.getVon() == null || antrag.getBis() == null) {
@@ -77,13 +74,14 @@ public class AntragResource {
         if (!sperrlisteService.versuchErlaubt(antrag.getEmail())) {
             throw new ForbiddenException("E-Mail-Adresse ist gesperrt");
         }
-        antrag.setId(naechsteId.getAndIncrement());
+        // Eine mitgeschickte id ignorieren, die vergibt die Datenbank
+        antrag.setId(null);
         antrag.setEmail(MailService.normalisieren(antrag.getEmail()));
         antrag.setStatus(Antrag.Status.UNBESTAETIGT);
         antrag.setAblehnGrund(null);
         antrag.setEntschiedenVon(null);
         antrag.setEntschiedenAm(null);
-        antraege.add(antrag);
+        antrag.persist();
         mailService.codeAnfordern(antrag.getEmail());
         return antrag;
     }
@@ -106,21 +104,23 @@ public class AntragResource {
     @POST
     @PermitAll
     @Path("/bestaetigen")
+    @Transactional
     public Response bestaetigen(CodeAnfrage anfrage) {
         if (anfrage == null || !gueltigeEmail(anfrage.email())
                 || !mailService.codePruefen(anfrage.email(), anfrage.code())) {
             throw new BadRequestException("Code ungültig oder abgelaufen");
         }
         String adresse = MailService.normalisieren(anfrage.email());
-        antraege.stream()
-                .filter(a -> a.getStatus() == Antrag.Status.UNBESTAETIGT && a.getEmail().equals(adresse))
-                .forEach(a -> a.setStatus(Antrag.Status.OFFEN));
+        List<Antrag> unbestaetigte = Antrag.list("status = ?1 and email = ?2", Antrag.Status.UNBESTAETIGT, adresse);
+        unbestaetigte.forEach(a -> a.setStatus(Antrag.Status.OFFEN));
         return Response.noContent().build();
     }
 
+    // @Transactional steht hier und nicht an entscheiden(), weil es an private Methoden nicht wirkt
     @POST
     @RolesAllowed("admin")
     @Path("/{id}/annehmen")
+    @Transactional
     public Antrag annehmen(@PathParam("id") long id) {
         return entscheiden(id, Antrag.Status.ANGENOMMEN, null);
     }
@@ -128,6 +128,7 @@ public class AntragResource {
     @POST
     @RolesAllowed("admin")
     @Path("/{id}/ablehnen")
+    @Transactional
     public Antrag ablehnen(@PathParam("id") long id, Ablehnung ablehnung) {
         String grund = ablehnung == null || leer(ablehnung.grund()) ? null : ablehnung.grund().trim();
         if (grund != null && grund.length() > MAX_LAENGE_ABLEHNGRUND) {
@@ -137,20 +138,19 @@ public class AntragResource {
     }
 
     private Antrag entscheiden(long id, Antrag.Status status, String ablehnGrund) {
-        Antrag antrag = antraege.stream()
-                .filter(a -> a.getId() == id && a.getStatus() != Antrag.Status.UNBESTAETIGT)
-                .findFirst()
-                .orElseThrow(NotFoundException::new);
-        // synchronized: klicken zwei Admins gleichzeitig, gewinnt nur einer
-        synchronized (antrag) {
-            if (antrag.getStatus() != Antrag.Status.OFFEN) {
-                throw new ClientErrorException("Antrag wurde bereits entschieden", Response.Status.CONFLICT);
-            }
-            antrag.setStatus(status);
-            antrag.setAblehnGrund(ablehnGrund);
-            antrag.setEntschiedenVon(identity.getPrincipal().getName());
-            antrag.setEntschiedenAm(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        // PESSIMISTIC_WRITE sperrt die Zeile in der Datenbank: Klicken zwei Admins gleichzeitig,
+        // wartet der zweite, bis der erste fertig ist, und bekommt dann "bereits entschieden"
+        Antrag antrag = Antrag.findById(id, LockModeType.PESSIMISTIC_WRITE);
+        if (antrag == null || antrag.getStatus() == Antrag.Status.UNBESTAETIGT) {
+            throw new NotFoundException();
         }
+        if (antrag.getStatus() != Antrag.Status.OFFEN) {
+            throw new ClientErrorException("Antrag wurde bereits entschieden", Response.Status.CONFLICT);
+        }
+        antrag.setStatus(status);
+        antrag.setAblehnGrund(ablehnGrund);
+        antrag.setEntschiedenVon(identity.getPrincipal().getName());
+        antrag.setEntschiedenAm(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         if (status == Antrag.Status.ANGENOMMEN) {
             besucherService.hinzufuegen(alsBesucher(antrag));
         }
@@ -175,8 +175,7 @@ public class AntragResource {
     }
 
     private boolean hatUnbestaetigte(String adresse) {
-        return antraege.stream()
-                .anyMatch(a -> a.getStatus() == Antrag.Status.UNBESTAETIGT && a.getEmail().equals(adresse));
+        return Antrag.count("status = ?1 and email = ?2", Antrag.Status.UNBESTAETIGT, adresse) > 0;
     }
 
     private static boolean leer(String wert) {

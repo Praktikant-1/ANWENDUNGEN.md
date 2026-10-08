@@ -1,20 +1,38 @@
 package de.exp.antrag;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class Antrag {
+// @Entity: Jeder Antrag wird als Zeile in der Tabelle "Antrag" gespeichert
+@Entity
+public class Antrag extends PanacheEntityBase {
 
     public enum Status { UNBESTAETIGT, OFFEN, ANGENOMMEN, ABGELEHNT }
 
-    private long id;
+    // Die Nummer vergibt die Datenbank selbst
+    @Id
+    @GeneratedValue
+    private Long id;
     private String name;
     private String email;
     private String firma;
+    // Freitext: mehr Platz als die üblichen 255 Zeichen
+    @Column(length = 2000)
     private String grund;
     private LocalDate von;
     private LocalDate bis;
+    // Als Text speichern ("OFFEN"), nicht als Zahl – sonst bricht es, wenn jemand die Reihenfolge ändert
+    @Enumerated(EnumType.STRING)
     private Status status = Status.UNBESTAETIGT;
+    @Column(length = AntragResource.MAX_LAENGE_ABLEHNGRUND)
     private String ablehnGrund;
     // Wer (Benutzername) den Antrag wann angenommen oder abgelehnt hat
     private String entschiedenVon;
@@ -23,11 +41,11 @@ public class Antrag {
     public Antrag() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
