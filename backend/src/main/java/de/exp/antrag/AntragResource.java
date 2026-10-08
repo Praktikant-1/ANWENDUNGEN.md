@@ -3,6 +3,7 @@ package de.exp.antrag;
 import de.exp.besucher.Besucher;
 import de.exp.besucher.BesucherService;
 import de.exp.mail.MailService;
+import de.exp.sperrliste.SperrlisteService;
 import io.quarkus.logging.Log;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.PermitAll;
@@ -10,6 +11,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
@@ -41,6 +43,9 @@ public class AntragResource {
     BesucherService besucherService;
 
     @Inject
+    SperrlisteService sperrlisteService;
+
+    @Inject
     SecurityIdentity identity;
 
     private final List<Antrag> antraege = new CopyOnWriteArrayList<>();
@@ -69,6 +74,9 @@ public class AntragResource {
         if (antrag.getBis().isBefore(antrag.getVon())) {
             throw new BadRequestException("Enddatum liegt vor dem Startdatum");
         }
+        if (!sperrlisteService.versuchErlaubt(antrag.getEmail())) {
+            throw new ForbiddenException("E-Mail-Adresse ist gesperrt");
+        }
         antrag.setId(naechsteId.getAndIncrement());
         antrag.setEmail(MailService.normalisieren(antrag.getEmail()));
         antrag.setStatus(Antrag.Status.UNBESTAETIGT);
@@ -87,7 +95,8 @@ public class AntragResource {
     @Path("/code-senden")
     public Response codeSenden(CodeAnfrage anfrage) {
         if (anfrage != null && gueltigeEmail(anfrage.email())
-                && hatUnbestaetigte(MailService.normalisieren(anfrage.email()))) {
+                && hatUnbestaetigte(MailService.normalisieren(anfrage.email()))
+                && sperrlisteService.versuchErlaubt(anfrage.email())) {
             mailService.codeAnfordern(anfrage.email());
         }
         return Response.noContent().build();

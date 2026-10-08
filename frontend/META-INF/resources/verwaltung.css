@@ -158,6 +158,8 @@ tbody tr:hover {
 .badge-offen      { background-color: #5c4400; color: #ffcc4d; }
 .badge-angenommen { background-color: #12401f; color: #6ee38d; }
 .badge-abgelehnt  { background-color: #4d1414; color: #ff7b7b; }
+.badge-gesperrt   { background-color: #4d1414; color: #ff7b7b; }
+.badge-frei       { background-color: #333;    color: #ccc; }
 
 /* Zeitpunkt unter dem Namen, wer einen Antrag entschieden hat */
 .entschieden-am {
@@ -178,4 +180,10 @@ tbody tr:hover {
     color: #ff7b7b;
     font-size: 0.85em;
     font-weight: bold;
+}
+
+/* Erklärung unter der Überschrift der Sperrliste */
+.hinweis {
+    font-size: 0.85em;
+    color: #bbb;
 }

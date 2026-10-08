@@ -277,6 +277,8 @@
             event.target.reset();
             zeigeCodeHinweis();
             zeigeSchritt(2);
+        } else if (antwort.status === 403) {
+            zeigeMeldung(t('start.gesperrt'), true);
         } else {
             zeigeMeldung(t('start.fehlerSenden'), true);
         }

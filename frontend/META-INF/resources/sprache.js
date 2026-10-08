@@ -68,6 +68,7 @@ const TEXTE = {
         'start.fehlerSenden': 'Fehler: Die Anfrage konnte nicht gesendet werden.',
         'start.codeUnterwegs': 'Ein neuer Code ist unterwegs.',
         'start.codeFalsch': 'Falscher oder abgelaufener Code.',
+        'start.gesperrt': 'Diese E-Mail-Adresse ist wegen zu vieler Anfragen vorübergehend gesperrt.',
 
         // Login
         'login.seitentitel': 'EXPass – Anmeldung',
@@ -121,6 +122,23 @@ const TEXTE = {
         'verwaltung.grundOptional': 'Grund (optional)',
         'verwaltung.keineRechteSchaeden': 'Keine Berechtigung, Schäden zu sehen.',
         'verwaltung.keineSchaeden': 'Keine Schäden gemeldet.',
+
+        // Sperrliste (nur Admins)
+        'sperrliste.titel': 'Sperrliste',
+        'sperrliste.hinweis': 'E-Mail-Adressen, mit denen mehr als 15 Anfragen in 30 Minuten geschickt wurden. 1. Sperre: 24 Stunden, 2.: 1 Monat, 3.: dauerhaft.',
+        'sperrliste.anzahl': 'Sperren',
+        'sperrliste.gesperrtAm': 'Gesperrt am',
+        'sperrliste.gesperrtBis': 'Gesperrt bis',
+        'sperrliste.aufgehoben': 'Aufgehoben von',
+        'sperrliste.gesperrt': 'Gesperrt',
+        'sperrliste.frei': 'Nicht gesperrt',
+        'sperrliste.dauerhaft': 'Dauerhaft',
+        'sperrliste.aufheben': 'Sperre aufheben',
+        'sperrliste.aufhebenFrage': 'Sperre für „{email}“ aufheben?',
+        'sperrliste.aufgehobenOk': 'Sperre aufgehoben.',
+        'sperrliste.fehler': 'Fehler: Die Sperre konnte nicht aufgehoben werden.',
+        'sperrliste.keineRechte': 'Keine Berechtigung, die Sperrliste zu sehen.',
+        'sperrliste.leer': 'Keine gesperrten E-Mail-Adressen.',
 
         // Accounts
         'accounts.seitentitel': 'EXPass – Accounts',
@@ -206,6 +224,7 @@ const TEXTE = {
         'start.fehlerSenden': 'Error: request could not be sent.',
         'start.codeUnterwegs': 'A new code is on its way.',
         'start.codeFalsch': 'Wrong or expired code.',
+        'start.gesperrt': 'This e-mail address is temporarily blocked because of too many requests.',
 
         'login.seitentitel': 'EXPass – Login',
         'login.fehler': 'Username or password is wrong.',
@@ -256,6 +275,22 @@ const TEXTE = {
         'verwaltung.grundOptional': 'Reason (optional)',
         'verwaltung.keineRechteSchaeden': 'No permission to see damages.',
         'verwaltung.keineSchaeden': 'No damages reported.',
+
+        'sperrliste.titel': 'Blocklist',
+        'sperrliste.hinweis': 'E-mail addresses that sent more than 15 requests within 30 minutes. 1st block: 24 hours, 2nd: 1 month, 3rd: permanent.',
+        'sperrliste.anzahl': 'Blocks',
+        'sperrliste.gesperrtAm': 'Blocked on',
+        'sperrliste.gesperrtBis': 'Blocked until',
+        'sperrliste.aufgehoben': 'Unblocked by',
+        'sperrliste.gesperrt': 'Blocked',
+        'sperrliste.frei': 'Not blocked',
+        'sperrliste.dauerhaft': 'Permanent',
+        'sperrliste.aufheben': 'Unblock',
+        'sperrliste.aufhebenFrage': 'Unblock "{email}"?',
+        'sperrliste.aufgehobenOk': 'Block removed.',
+        'sperrliste.fehler': 'Error: block could not be removed.',
+        'sperrliste.keineRechte': 'No permission to see the blocklist.',
+        'sperrliste.leer': 'No blocked e-mail addresses.',
 
         'accounts.seitentitel': 'EXPass – Accounts',
         'accounts.zurueck': 'Back to visitor management',
