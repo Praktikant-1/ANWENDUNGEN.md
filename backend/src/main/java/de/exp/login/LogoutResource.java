@@ -15,7 +15,6 @@ public class LogoutResource {
     @Inject
     SecurityIdentity identity;
 
-    // Löscht das Login-Cookie und schickt zurück zur Startseite
     @POST
     public Response logout() {
         if (!identity.isAnonymous()) {

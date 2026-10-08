@@ -14,8 +14,9 @@ public class Schaden extends PanacheEntityBase {
     @Id
     @GeneratedValue
     private Long id;
-    // Freitext: mehr Platz als die üblichen 255 Zeichen
+
     @Column(length = 2000)
+
     private String beschreibung;
     private LocalDate datum;
     private String melder;
@@ -57,7 +58,6 @@ public class Schaden extends PanacheEntityBase {
         this.melder = melder;
     }
 
-    // Nur ausfüllen, wenn jemand den Schaden zugegeben hat
     public String getVerursacher() {
         return verursacher;
     }

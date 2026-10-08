@@ -9,7 +9,6 @@ import jakarta.ws.rs.core.Response;
 
 import java.net.URI;
 
-// Nach dem Login landet jeder auf seiner eigenen Seite
 @Path("/nach-login")
 @Authenticated
 public class NachLoginResource {

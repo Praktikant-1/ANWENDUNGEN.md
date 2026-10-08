@@ -11,8 +11,6 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-// Wird bei jeder Anfrage mit Login-Cookie aufgerufen.
-// So gelten gelöschte Accounts und geänderter Admin-Status sofort.
 @ApplicationScoped
 public class EingeloggtIdentityProvider implements IdentityProvider<TrustedAuthenticationRequest> {
 

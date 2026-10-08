@@ -49,14 +49,12 @@ public class AntragResource {
     @Inject
     SecurityIdentity identity;
 
-    // Unbestätigte Anträge sieht die Verwaltung nicht
     @GET
     @RolesAllowed("verwaltung")
     public List<Antrag> alle() {
         return Antrag.list("status != ?1", Sort.by("id"), Antrag.Status.UNBESTAETIGT);
     }
 
-    // Öffentlich: Besucher stellen hier ihren Antrag
     @POST
     @PermitAll
     @Transactional
@@ -86,8 +84,6 @@ public class AntragResource {
         return antrag;
     }
 
-    // Öffentlich: Code erneut anfordern. Antwortet immer gleich, damit man nicht
-    // herausfinden kann, für welche Adressen Anträge existieren.
     @POST
     @PermitAll
     @Path("/code-senden")
@@ -100,7 +96,6 @@ public class AntragResource {
         return Response.noContent().build();
     }
 
-    // Öffentlich: bestätigt alle offenen Anträge dieser E-Mail-Adresse
     @POST
     @PermitAll
     @Path("/bestaetigen")
@@ -116,7 +111,6 @@ public class AntragResource {
         return Response.noContent().build();
     }
 
-    // @Transactional steht hier und nicht an entscheiden(), weil es an private Methoden nicht wirkt
     @POST
     @RolesAllowed("admin")
     @Path("/{id}/annehmen")
@@ -163,7 +157,6 @@ public class AntragResource {
         return antrag;
     }
 
-    // Ankunftszeit bleibt leer, bis der Besucher tatsächlich da ist
     private static Besucher alsBesucher(Antrag antrag) {
         Besucher besucher = new Besucher();
         besucher.setName(antrag.getName());

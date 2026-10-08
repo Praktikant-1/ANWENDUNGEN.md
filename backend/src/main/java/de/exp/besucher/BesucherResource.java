@@ -33,8 +33,6 @@ public class BesucherResource {
         return besucherService.hinzufuegen(besucher);
     }
 
-    // Ankunftszeit nachträglich erfassen, z. B. {"ankunft": "09:15"}.
-    // Ohne Zeit wird die aktuelle Uhrzeit genommen.
     @POST
     @Path("/{id}/ankunft")
     @RolesAllowed("verwaltung")
@@ -50,8 +48,6 @@ public class BesucherResource {
         return besucher;
     }
 
-    // Austrittszeit nachträglich erfassen, z. B. {"austritt": "16:30"}.
-    // Ohne Zeit wird die aktuelle Uhrzeit genommen.
     @POST
     @Path("/{id}/austritt")
     @RolesAllowed("verwaltung")
