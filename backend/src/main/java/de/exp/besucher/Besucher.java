@@ -1,12 +1,22 @@
 package de.exp.besucher;
 
 import de.exp.antrag.Antrag;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class Besucher {
+// @Entity: Jeder Besucher wird als Zeile in der Tabelle "Besucher" gespeichert
+@Entity
+public class Besucher extends PanacheEntityBase {
 
-    private long id;
+    // Die Nummer vergibt die Datenbank selbst
+    @Id
+    @GeneratedValue
+    private Long id;
     private String name;
     private String firma;
     private String grund;
@@ -19,11 +29,11 @@ public class Besucher {
     public Besucher() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

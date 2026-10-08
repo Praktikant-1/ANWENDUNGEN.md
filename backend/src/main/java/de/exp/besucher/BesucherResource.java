@@ -2,6 +2,7 @@ package de.exp.besucher;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.GET;
@@ -37,6 +38,7 @@ public class BesucherResource {
     @POST
     @Path("/{id}/ankunft")
     @RolesAllowed("verwaltung")
+    @Transactional
     public Besucher ankunftErfassen(@PathParam("id") long id, Besucher daten) {
         Besucher besucher = besucherService.finde(id);
         if (besucher.getAnkunft() != null) {
@@ -53,6 +55,7 @@ public class BesucherResource {
     @POST
     @Path("/{id}/austritt")
     @RolesAllowed("verwaltung")
+    @Transactional
     public Besucher austrittErfassen(@PathParam("id") long id, Besucher daten) {
         Besucher besucher = besucherService.finde(id);
 
