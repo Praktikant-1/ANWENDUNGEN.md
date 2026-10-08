@@ -2,6 +2,7 @@ package de.exp.antrag;
 
 import de.exp.besucher.Besucher;
 import de.exp.besucher.BesucherService;
+import de.exp.mail.BesuchsausweisPdf;
 import de.exp.mail.MailService;
 import de.exp.sperrliste.SperrlisteService;
 import io.quarkus.logging.Log;
@@ -20,6 +21,7 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
@@ -45,6 +47,9 @@ public class AntragResource {
 
     @Inject
     SperrlisteService sperrlisteService;
+
+    @Inject
+    BesuchsausweisPdf besuchsausweis;
 
     @Inject
     SecurityIdentity identity;
@@ -131,6 +136,22 @@ public class AntragResource {
         return entscheiden(id, Antrag.Status.ABGELEHNT, grund);
     }
 
+    @GET
+    @RolesAllowed("verwaltung")
+    @Path("/{id}/ausweis")
+    @Produces("application/pdf")
+    public Response ausweis(@PathParam("id") long id) {
+        Antrag antrag = Antrag.findById(id);
+        if (antrag == null || antrag.getStatus() != Antrag.Status.ANGENOMMEN || antrag.getBesucherId() == null) {
+            throw new NotFoundException();
+        }
+        Besucher besucher = besucherService.finde(antrag.getBesucherId());
+        // "inline": der Browser zeigt die PDF an, statt sie nur herunterzuladen
+        return Response.ok(besuchsausweis.erstellen(antrag, besucher.getQrCode()))
+                .header("Content-Disposition", "inline; filename=\"visitor-pass-" + id + ".pdf\"")
+                .build();
+    }
+
     private Antrag entscheiden(long id, Antrag.Status status, String ablehnGrund) {
         // PESSIMISTIC_WRITE sperrt die Zeile in der Datenbank: Klicken zwei Admins gleichzeitig,
         // wartet der zweite, bis der erste fertig ist, und bekommt dann "bereits entschieden"
@@ -145,13 +166,13 @@ public class AntragResource {
         antrag.setAblehnGrund(ablehnGrund);
         antrag.setEntschiedenVon(identity.getPrincipal().getName());
         antrag.setEntschiedenAm(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
-        // Bei Annahme wird ein Besucher angelegt, sein QR-Code kommt mit in die Mail
-        Besucher besucher = null;
+        // Bei Annahme wird ein Besucher angelegt, seinen Ausweis kann die Verwaltung über /{id}/ausweis abrufen
         if (status == Antrag.Status.ANGENOMMEN) {
-            besucher = besucherService.hinzufuegen(alsBesucher(antrag));
+            Besucher besucher = besucherService.hinzufuegen(alsBesucher(antrag));
+            antrag.setBesucherId(besucher.getId());
         }
         try {
-            mailService.entscheidungSenden(antrag, besucher);
+            mailService.entscheidungSenden(antrag);
         } catch (RuntimeException e) {
             // Die Entscheidung bleibt gültig, auch wenn die Mail nicht rausgeht
             Log.errorf(e, "Entscheidungs-Mail für Antrag %d konnte nicht gesendet werden", id);

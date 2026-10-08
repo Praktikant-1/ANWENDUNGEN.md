@@ -1,7 +1,6 @@
 package de.exp.mail;
 
 import de.exp.antrag.Antrag;
-import de.exp.besucher.Besucher;
 import io.quarkus.logging.Log;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
@@ -31,9 +30,6 @@ public class MailService {
 
     @Inject
     Mailer mailer;
-
-    @Inject
-    BesuchsausweisPdf besuchsausweis;
 
     private final SecureRandom zufall = new SecureRandom();
     private final ScheduledExecutorService zeitplaner = Executors.newSingleThreadScheduledExecutor();
@@ -70,7 +66,7 @@ public class MailService {
         return false;
     }
 
-    public void entscheidungSenden(Antrag antrag, Besucher besucher) {
+    public void entscheidungSenden(Antrag antrag) {
         boolean angenommen = antrag.getStatus() == Antrag.Status.ANGENOMMEN;
         StringBuilder text = new StringBuilder()
                 .append("Hello ").append(antrag.getName()).append(",\n\n")
@@ -81,17 +77,11 @@ public class MailService {
         if (!angenommen && antrag.getAblehnGrund() != null) {
             text.append("\nReason: ").append(antrag.getAblehnGrund()).append("\n");
         }
-        if (angenommen) {
-            text.append("\nPlease show the attached visitor pass (QR code) at the reception.\n");
-        }
         text.append("\nEXPass Visitor Management");
 
         Mail mail = Mail.withText(antrag.getEmail(),
                 "EXPass – Your visit request was " + (angenommen ? "accepted" : "rejected"),
                 text.toString());
-        if (angenommen && besucher != null) {
-            mail.addAttachment("visitor-pass.pdf", besuchsausweis.erstellen(antrag, besucher.getQrCode()), "application/pdf");
-        }
         mailer.send(mail);
     }
 
