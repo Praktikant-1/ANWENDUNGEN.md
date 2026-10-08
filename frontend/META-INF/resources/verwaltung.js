@@ -156,6 +156,8 @@ document.getElementById('besucher-formular').addEventListener('submit', async (e
 
 ladeBesucher();
 
+const ich = fetch('/accounts/ich')
+    .then(antwort => antwort.ok && !antwort.redirected ? antwort.json() : { admin: false });
 async function ladeAntraege() {
     const tabelle = document.getElementById('antrag-tabelle');
     const antwort = await fetch('/antraege');
@@ -165,7 +167,7 @@ async function ladeAntraege() {
         return;
     }
     const antraege = await antwort.json();
-
+    const istAdmin = (await ich).admin;
     tabelle.innerHTML = '';
 
     if (antraege.length === 0) {
@@ -194,8 +196,10 @@ async function ladeAntraege() {
 
         // Offen: Knöpfe zum Entscheiden, sonst wer wann entschieden hat
         const aktionen = document.createElement('td');
-        if (antrag.status === 'OFFEN') {
+        if (antrag.status === 'OFFEN' && istAdmin) {
             zeigeEntscheidungsKnoepfe(aktionen, antrag);
+        } else if (antrag.status === 'OFFEN') {
+            aktionen.textContent = t('verwaltung.entscheidungOffen');
         } else if (antrag.entschiedenVon) {
             const zeitpunkt = document.createElement('span');
             zeitpunkt.className = 'entschieden-am';
@@ -252,8 +256,7 @@ ladeAntraege();
 
 // Link zur Accountverwaltung nur für Admins zeigen
 async function zeigeAccountsLink() {
-    const antwort = await fetch('/accounts/ich');
-    if (antwort.ok && !antwort.redirected && (await antwort.json()).admin) {
+    if ((await ich).admin) {
         document.getElementById('accounts-link').hidden = false;
     }
 }
