@@ -1,5 +1,6 @@
 package de.exp.besucher;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +27,10 @@ public class Besucher extends PanacheEntityBase {
     private LocalDate bis;
     private LocalTime ankunft;
     private LocalTime austritt;
+    // Zufälliger Code für den QR-Code im Besuchsausweis; wird nicht an den Browser geschickt
+    @JsonIgnore
+    @Column(unique = true)
+    private String qrCode;
 
     public Besucher() {
     }
@@ -92,5 +97,13 @@ public class Besucher extends PanacheEntityBase {
 
     public void setBis(LocalDate bis) {
         this.bis = bis;
+    }
+
+    public String getQrCode() {
+        return qrCode;
+    }
+
+    public void setQrCode(String qrCode) {
+        this.qrCode = qrCode;
     }
 }
