@@ -145,11 +145,13 @@ public class AntragResource {
         antrag.setAblehnGrund(ablehnGrund);
         antrag.setEntschiedenVon(identity.getPrincipal().getName());
         antrag.setEntschiedenAm(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        // Bei Annahme wird ein Besucher angelegt, sein QR-Code kommt mit in die Mail
+        Besucher besucher = null;
         if (status == Antrag.Status.ANGENOMMEN) {
-            besucherService.hinzufuegen(alsBesucher(antrag));
+            besucher = besucherService.hinzufuegen(alsBesucher(antrag));
         }
         try {
-            mailService.entscheidungSenden(antrag);
+            mailService.entscheidungSenden(antrag, besucher);
         } catch (RuntimeException e) {
             // Die Entscheidung bleibt gültig, auch wenn die Mail nicht rausgeht
             Log.errorf(e, "Entscheidungs-Mail für Antrag %d konnte nicht gesendet werden", id);

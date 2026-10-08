@@ -27,6 +27,7 @@ public class BesucherService {
     public Besucher hinzufuegen(Besucher besucher) {
         besucher.setId(null);
         besucher.setAustritt(null);
+        besucher.setQrCode(java.util.UUID.randomUUID().toString());
         if (besucher.getDatum() == null) {
             besucher.setDatum(LocalDate.now());
         }

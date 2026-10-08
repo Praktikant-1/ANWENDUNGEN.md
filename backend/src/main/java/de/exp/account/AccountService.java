@@ -39,7 +39,7 @@ public class AccountService {
         account.persist();
         return account;
     }
-    
+
     public Account pruefeLogin(String benutzername, String passwort) {
         Account account = Account.findById(benutzername);
         if (account == null || !BcryptUtil.matches(passwort, account.getPasswortHash())) {
