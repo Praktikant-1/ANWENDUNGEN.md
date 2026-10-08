@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -83,6 +84,23 @@ public class MailService {
         mailer.send(Mail.withText(antrag.getEmail(),
                 "EXPass – Your visit request was " + (angenommen ? "accepted" : "rejected"),
                 text.toString()));
+    }
+
+    // 1. Sperre: 24 Stunden, 2. Sperre: 1 Monat, ab der 3.: dauerhaft (gesperrtBis == null)
+    public void sperreSenden(String adresse, int anzahlSperren, LocalDateTime gesperrtBis) {
+        String dauer = switch (anzahlSperren) {
+            case 1 -> "for 24 hours (until " + gesperrtBis.toString().replace('T', ' ') + ")";
+            case 2 -> "for one month (until " + gesperrtBis.toLocalDate() + ")";
+            default -> "permanently";
+        };
+        mailer.send(Mail.withText(adresse,
+                "EXPass – Your e-mail address has been blocked",
+                "Hello,\n\n"
+                        + "too many visit requests were sent with this e-mail address in a short time.\n"
+                        + "It has therefore been blocked " + dauer + ".\n"
+                        + "During this time no visit requests can be made with it.\n\n"
+                        + "If you think this is a mistake, please contact us.\n\n"
+                        + "EXPass Visitor Management"));
     }
 
     private void codeSenden(String adresse) {

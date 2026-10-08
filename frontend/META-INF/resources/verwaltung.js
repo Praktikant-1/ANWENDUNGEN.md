@@ -310,6 +310,77 @@ async function ladeSchaeden() {
 
 ladeSchaeden();
 
+// Sperrliste: nur für Admins sichtbar (der Server lässt auch nur Admins zu)
+async function ladeSperrliste() {
+    if (!(await ich).admin) return;
+    document.getElementById('sperrliste-karte').hidden = false;
+    document.getElementById('sperrliste-link').hidden = false;
+
+    const tabelle = document.getElementById('sperrliste-tabelle');
+    const antwort = await fetch('/sperrliste');
+    if (zumLoginWennAbgelaufen(antwort)) return;
+    if (!antwort.ok) {
+        tabelle.innerHTML = `<tr><td colspan="6">${t('sperrliste.keineRechte')}</td></tr>`;
+        return;
+    }
+    const eintraege = await antwort.json();
+
+    tabelle.innerHTML = '';
+    if (eintraege.length === 0) {
+        tabelle.innerHTML = `<tr><td colspan="6">${t('sperrliste.leer')}</td></tr>`;
+        return;
+    }
+
+    for (const eintrag of eintraege) {
+        const zeile = document.createElement('tr');
+
+        const emailZelle = document.createElement('td');
+        emailZelle.textContent = eintrag.email;
+        zeile.appendChild(emailZelle);
+
+        const statusZelle = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = 'badge ' + (eintrag.gesperrt ? 'badge-gesperrt' : 'badge-frei');
+        badge.textContent = t(eintrag.gesperrt ? 'sperrliste.gesperrt' : 'sperrliste.frei');
+        statusZelle.appendChild(badge);
+        zeile.appendChild(statusZelle);
+
+        const bis = eintrag.gesperrtBis ? datumUhrzeit(eintrag.gesperrtBis) : t('sperrliste.dauerhaft');
+        for (const wert of [eintrag.anzahlSperren, datumUhrzeit(eintrag.gesperrtAm), bis]) {
+            const zelle = document.createElement('td');
+            zelle.textContent = wert;
+            zeile.appendChild(zelle);
+        }
+
+        // Gesperrt: Knopf zum Aufheben, sonst ggf. wer die Sperre wann aufgehoben hat
+        const aktionen = document.createElement('td');
+        if (eintrag.gesperrt) {
+            aktionen.appendChild(knopf(t('sperrliste.aufheben'), () => sperreAufheben(eintrag.email)));
+        } else if (eintrag.aufgehobenVon) {
+            const zeitpunkt = document.createElement('span');
+            zeitpunkt.className = 'entschieden-am';
+            zeitpunkt.textContent = datumUhrzeit(eintrag.aufgehobenAm);
+            aktionen.append(eintrag.aufgehobenVon, document.createElement('br'), zeitpunkt);
+        }
+        zeile.appendChild(aktionen);
+        tabelle.appendChild(zeile);
+    }
+}
+
+async function sperreAufheben(email) {
+    if (!confirm(t('sperrliste.aufhebenFrage', { email }))) return;
+    const antwort = await fetch('/sperrliste/aufheben', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+    });
+    if (zumLoginWennAbgelaufen(antwort)) return;
+    zeigeMeldung('sperrliste-meldung', antwort.ok ? t('sperrliste.aufgehobenOk') : t('sperrliste.fehler'), !antwort.ok);
+    ladeSperrliste();
+}
+
+ladeSperrliste();
+
 document.getElementById('jetzt').addEventListener('click', () => {
     document.querySelector('[name="ankunft"]').value =
         new Date().toTimeString().slice(0, 5);
@@ -332,7 +403,7 @@ document.addEventListener('click', (event) => {
 
 // Suche über alle Listen: Jedes Wort muss in irgendeiner Spalte der Zeile vorkommen
 const suchFeld = document.getElementById('suche');
-const tabellen = ['antrag-tabelle', 'schaden-tabelle', 'besucher-tabelle'].map(id => document.getElementById(id));
+const tabellen = ['antrag-tabelle', 'schaden-tabelle', 'besucher-tabelle', 'sperrliste-tabelle'].map(id => document.getElementById(id));
 
 function suchtext(zeile) {
     // Zellen mit Eingabefeldern/Knöpfen (Check in, Accept …) zählen nicht mit
@@ -405,5 +476,6 @@ document.addEventListener('sprachwechsel', () => {
     ladeBesucher();
     ladeAntraege();
     ladeSchaeden();
+    ladeSperrliste();
     sucheAnwenden();
 });

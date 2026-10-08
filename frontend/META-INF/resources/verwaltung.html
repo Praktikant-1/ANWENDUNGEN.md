@@ -16,6 +16,7 @@
             <a href="#bereich-antraege" data-i18n="verwaltung.antraegeTitel">Requests</a>
             <a href="#bereich-schaeden" data-i18n="verwaltung.schaedenTitel">Damages</a>
             <a href="#bereich-besucher" data-i18n="verwaltung.besucherTitel">Visitors</a>
+            <a href="#bereich-sperrliste" id="sperrliste-link" data-i18n="sperrliste.titel" hidden>Blocklist</a>
         </div>
     </details>
     <input type="search" id="suche" placeholder="Search…" title="Searches all lists. Several words narrow the result, e.g. ACME 2026-10"
@@ -131,6 +132,27 @@
 </table>
 </div>
 <p id="besucher-meldung"></p>
+</section>
+
+<section class="karte" id="sperrliste-karte" hidden>
+<h2 id="bereich-sperrliste" data-i18n="sperrliste.titel">Blocklist</h2>
+<p class="hinweis" data-i18n="sperrliste.hinweis">E-mail addresses that sent more than 15 requests within 30 minutes. 1st block: 24 hours, 2nd: 1 month, 3rd: permanent.</p>
+<p id="sperrliste-meldung"></p>
+<div class="tabelle-scroll">
+<table>
+    <thead>
+    <tr>
+        <th data-i18n="feld.email">E-mail</th>
+        <th data-i18n="spalte.status">Status</th>
+        <th data-i18n="sperrliste.anzahl">Blocks</th>
+        <th data-i18n="sperrliste.gesperrtAm">Blocked on</th>
+        <th data-i18n="sperrliste.gesperrtBis">Blocked until</th>
+        <th data-i18n="sperrliste.aufgehoben">Unblocked by</th>
+    </tr>
+    </thead>
+    <tbody id="sperrliste-tabelle"></tbody>
+</table>
+</div>
 </section>
 
 <script src="/sprache.js"></script>
