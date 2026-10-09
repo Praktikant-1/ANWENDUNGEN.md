@@ -112,7 +112,15 @@ public class AntragResource {
         }
         String adresse = MailService.normalisieren(anfrage.email());
         List<Antrag> unbestaetigte = Antrag.list("status = ?1 and email = ?2", Antrag.Status.UNBESTAETIGT, adresse);
-        unbestaetigte.forEach(a -> a.setStatus(Antrag.Status.OFFEN));
+        unbestaetigte.forEach(a -> {
+            a.setStatus(Antrag.Status.OFFEN);
+            try {
+                mailService.neuerAntragMelden(a);
+            } catch (RuntimeException e) {
+                // Der Antrag bleibt bestätigt, auch wenn die Mail nicht rausgeht
+                Log.errorf(e, "Benachrichtigung für Antrag %d konnte nicht gesendet werden", a.getId());
+            }
+        });
         return Response.noContent().build();
     }
 

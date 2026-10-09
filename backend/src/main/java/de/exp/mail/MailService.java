@@ -7,6 +7,7 @@ import io.quarkus.mailer.Mailer;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -30,6 +31,9 @@ public class MailService {
 
     @Inject
     Mailer mailer;
+
+    @ConfigProperty(name = "expass.verwaltung.email")
+    String verwaltungEmail;
 
     private final SecureRandom zufall = new SecureRandom();
     private final ScheduledExecutorService zeitplaner = Executors.newSingleThreadScheduledExecutor();
@@ -91,6 +95,17 @@ public class MailService {
                 "EXPass – Your visit request was " + (angenommen ? "accepted" : "rejected"),
                 text.toString());
         mailer.send(mail);
+    }
+
+    public void neuerAntragMelden(Antrag antrag) {
+        String text = "Neuer Besuchsantrag:\n\n"
+                + "Name: " + antrag.getName() + "\n"
+                + "Firma: " + (antrag.getFirma() == null ? "-" : antrag.getFirma()) + "\n"
+                + "Zeitraum: " + antrag.getVon() + " – " + antrag.getBis() + "\n"
+                + "Grund: " + antrag.getGrund() + "\n\n"
+                + "Bitte in der Verwaltung annehmen oder ablehnen.";
+        mailer.send(Mail.withText(verwaltungEmail,
+                "EXPass – Neuer Besuchsantrag von " + antrag.getName(), text));
     }
 
     public void sperreSenden(String adresse, int anzahlSperren, LocalDateTime gesperrtBis) {

@@ -89,8 +89,6 @@ const TEXTE = {
 
         // Verwaltung
         'verwaltung.seitentitel': 'EXPass – Besucherverwaltung',
-        'verwaltung.springen': 'Springe zu ▾',
-        'verwaltung.springenTitel': 'Springe zu',
         'verwaltung.sucheOeffnen': 'Suchen',
         'verwaltung.sucheSchliessen': 'Suche schließen',
         'uebersicht.titel': 'Heute',
@@ -247,8 +245,6 @@ const TEXTE = {
         'schaden.fehler': 'Error: damage could not be reported.',
 
         'verwaltung.seitentitel': 'EXPass – Visitor Management',
-        'verwaltung.springen': 'Jump to ▾',
-        'verwaltung.springenTitel': 'Jump to',
         'verwaltung.sucheOeffnen': 'Search',
         'verwaltung.sucheSchliessen': 'Close search',
         'uebersicht.titel': 'Today',
