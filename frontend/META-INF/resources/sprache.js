@@ -76,6 +76,8 @@ const TEXTE = {
         'login.fehler': 'Benutzername oder Passwort ist falsch.',
         'login.knopf': 'Anmelden',
         'login.zurueck': 'Zurück zur Startseite',
+        'login.firmenkonto': 'Mit Firmenkonto anmelden',
+        'login.kein-account': 'Für dieses Firmenkonto gibt es keinen Account.',
 
         // Schaden melden (Mitarbeiter-Seite und Fenster auf der Verwaltungsseite)
         'schaden.seitentitel': 'EXPass – Schaden melden',
@@ -234,6 +236,8 @@ const TEXTE = {
         'login.fehler': 'Username or password is wrong.',
         'login.knopf': 'Log in',
         'login.zurueck': 'Back to start page',
+        'login.firmenkonto': 'Log in with company account',
+        'login.kein-account': 'There is no account for this company login.',
 
         'schaden.seitentitel': 'EXPass – Report damage',
         'schaden.titel': 'Report damage',

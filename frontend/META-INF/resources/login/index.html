@@ -14,7 +14,7 @@
             margin: 0 auto;
             text-align: left;
         }
-        #fehler {
+        #fehler, #kein-account {
             color: red;
         }
     </style>
@@ -24,12 +24,14 @@
 <h1 data-i18n="login.seitentitel">EXPass – Login</h1>
 
 <p id="fehler" hidden data-i18n="login.fehler">Username or password is wrong.</p>
+<p id="kein-account" hidden data-i18n="login.kein-account">There is no account for this company login.</p>
 
 <form action="/j_security_check" method="post">
     <input name="j_username" placeholder="Username" data-i18n-placeholder="feld.benutzername" required>
     <input name="j_password" type="password" placeholder="Password" data-i18n-placeholder="feld.passwort" required>
     <button type="submit" data-i18n="login.knopf">Log in</button>
 </form>
+<p><a class="oidc-login" href="/login-oidc" data-i18n="login.firmenkonto">Log in with company account</a></p>
 
 <p><a href="/" data-i18n="login.zurueck">Back to start page</a></p>
 
@@ -42,6 +44,9 @@
 
     if (location.search.includes('fehler')) {
         document.getElementById('fehler').hidden = false;
+    }
+    if (location.search.includes('kein-account')) {
+        document.getElementById('kein-account').hidden = false;
     }
 </script>
 </body>

@@ -31,6 +31,11 @@ public class AccountService {
         return Account.findById(benutzername);
     }
 
+    public Account findeOhneGrossKlein(String benutzername) {
+        List<Account> treffer = Account.list("lower(benutzername) = ?1", benutzername.toLowerCase());
+        return treffer.size() == 1 ? treffer.get(0) : null;
+    }
+
     public Account erstellen(String benutzername, String passwort, Account.Rolle rolle, boolean admin) {
         if (Account.findById(benutzername) != null) {
             return null;
