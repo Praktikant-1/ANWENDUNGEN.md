@@ -321,7 +321,6 @@ ladeSchaeden();
 async function ladeSperrliste() {
     if (!(await ich).admin) return;
     document.getElementById('sperrliste-karte').hidden = false;
-    document.getElementById('sperrliste-link').hidden = false;
 
     const tabelle = document.getElementById('sperrliste-tabelle');
     const antwort = await fetch('/sperrliste');
@@ -398,14 +397,6 @@ const datumFeld = document.querySelector('#besucher-formular [name="datum"]');
 datumFeld.value = heute();
 document.getElementById('besucher-formular').addEventListener('reset', () => {
     setTimeout(() => datumFeld.value = heute());
-});
-
-// Sprung-Menü zuklappen, wenn ein Link oder irgendwo daneben geklickt wird
-const sprungmenue = document.querySelector('.sprungmenue');
-document.addEventListener('click', (event) => {
-    if (!sprungmenue.contains(event.target) || event.target.closest('.sprung-links a')) {
-        sprungmenue.open = false;
-    }
 });
 
 // Suche über alle Listen: Jedes Wort muss in irgendeiner Spalte der Zeile vorkommen

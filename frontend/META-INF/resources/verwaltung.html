@@ -9,19 +9,6 @@
 </head>
 <body>
 <nav class="schnellwahl">
-    <details class="sprungmenue">
-        <summary title="Jump to" data-i18n-title="verwaltung.springenTitel">
-            <span class="springen-text" data-i18n="verwaltung.springen">Jump to ▾</span>
-            <span class="springen-icon" aria-hidden="true">☰</span>
-        </summary>
-        <div class="sprung-links">
-            <a href="#bereich-hinzufuegen" data-i18n="verwaltung.hinzufuegenTitel">Add visitor</a>
-            <a href="#bereich-antraege" data-i18n="verwaltung.antraegeTitel">Requests</a>
-            <a href="#bereich-schaeden" data-i18n="verwaltung.schaedenTitel">Damages</a>
-            <a href="#bereich-besucher" data-i18n="verwaltung.besucherTitel">Visitors</a>
-            <a href="#bereich-sperrliste" id="sperrliste-link" data-i18n="sperrliste.titel" hidden>Blocklist</a>
-        </div>
-    </details>
     <!-- Auf dem Handy nur die Lupe; ein Druck darauf macht die ganze Leiste zur Suchleiste -->
     <button type="button" id="suche-oeffnen" class="icon-knopf" title="Search" aria-label="Search"
             data-i18n-title="verwaltung.sucheOeffnen" data-i18n-aria-label="verwaltung.sucheOeffnen">
@@ -62,14 +49,15 @@
 </form>
 <p id="accounts-link" hidden><a href="/accounts.html" data-i18n="verwaltung.accountsLink">Manage accounts</a></p>
 
-<!-- Überblick für heute, die Zahlen setzt verwaltung.js beim Laden der Listen -->
+<!-- Überblick für heute, die Zahlen setzt verwaltung.js beim Laden der Listen.
+     Ein Klick auf eine Kachel springt zur passenden Tabelle. -->
 <section class="karte">
 <h2 data-i18n="uebersicht.titel">Today</h2>
 <div class="uebersicht">
-    <div class="kennzahl"><span id="zahl-anwesend" class="zahl">–</span><span data-i18n="uebersicht.anwesend">On site now</span></div>
-    <div class="kennzahl"><span id="zahl-erwartet" class="zahl">–</span><span data-i18n="uebersicht.erwartet">Visitors expected today</span></div>
-    <div class="kennzahl"><span id="zahl-schaeden" class="zahl">–</span><span data-i18n="uebersicht.schaeden">Damages reported today</span></div>
-    <div class="kennzahl"><span id="zahl-offen" class="zahl">–</span><span data-i18n="uebersicht.offen">Open requests</span></div>
+    <a class="kennzahl" href="#bereich-besucher"><span id="zahl-anwesend" class="zahl">–</span><span data-i18n="uebersicht.anwesend">On site now</span></a>
+    <a class="kennzahl" href="#bereich-besucher"><span id="zahl-erwartet" class="zahl">–</span><span data-i18n="uebersicht.erwartet">Visitors expected today</span></a>
+    <a class="kennzahl" href="#bereich-schaeden"><span id="zahl-schaeden" class="zahl">–</span><span data-i18n="uebersicht.schaeden">Damages reported today</span></a>
+    <a class="kennzahl" href="#bereich-antraege"><span id="zahl-offen" class="zahl">–</span><span data-i18n="uebersicht.offen">Open requests</span></a>
 </div>
 </section>
 
