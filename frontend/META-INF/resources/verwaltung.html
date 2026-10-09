@@ -10,7 +10,10 @@
 <body>
 <nav class="schnellwahl">
     <details class="sprungmenue">
-        <summary data-i18n="verwaltung.springen">Jump to ▾</summary>
+        <summary title="Jump to" data-i18n-title="verwaltung.springenTitel">
+            <span class="springen-text" data-i18n="verwaltung.springen">Jump to ▾</span>
+            <span class="springen-icon" aria-hidden="true">☰</span>
+        </summary>
         <div class="sprung-links">
             <a href="#bereich-hinzufuegen" data-i18n="verwaltung.hinzufuegenTitel">Add visitor</a>
             <a href="#bereich-antraege" data-i18n="verwaltung.antraegeTitel">Requests</a>
@@ -19,9 +22,16 @@
             <a href="#bereich-sperrliste" id="sperrliste-link" data-i18n="sperrliste.titel" hidden>Blocklist</a>
         </div>
     </details>
+    <!-- Auf dem Handy nur die Lupe; ein Druck darauf macht die ganze Leiste zur Suchleiste -->
+    <button type="button" id="suche-oeffnen" class="icon-knopf" title="Search" aria-label="Search"
+            data-i18n-title="verwaltung.sucheOeffnen" data-i18n-aria-label="verwaltung.sucheOeffnen">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21"/></svg>
+    </button>
     <input type="search" id="suche" placeholder="Search…" title="Searches all lists. Several words narrow the result, e.g. ACME 2026-10"
            data-i18n-placeholder="verwaltung.suche" data-i18n-title="verwaltung.sucheTitel">
     <span id="treffer"></span>
+    <button type="button" id="suche-schliessen" class="icon-knopf" title="Close search" aria-label="Close search"
+            data-i18n-title="verwaltung.sucheSchliessen" data-i18n-aria-label="verwaltung.sucheSchliessen">✕</button>
     <button type="button" id="schaden-melden" class="schaden-melden" data-i18n="schaden.titel">Report damage</button>
     <div class="sprachwahl"></div>
 </nav>

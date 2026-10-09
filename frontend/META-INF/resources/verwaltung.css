@@ -4,11 +4,6 @@ table {
     border-collapse: collapse;
 }
 
-/* Breite Tabellen auf dem Handy seitlich scrollbar statt die ganze Seite zu verkleinern */
-.tabelle-scroll {
-    overflow-x: auto;
-    max-width: 100%;
-}
 th, td {
     border: 1px solid white;
     padding: 8px 16px;
@@ -90,6 +85,24 @@ h2 {
 }
 .sprungmenue summary::-webkit-details-marker {
     display: none;
+}
+/* Lupe, ✕ und ☰ gibt es nur auf dem Handy (siehe unten) */
+.icon-knopf {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+}
+.icon-knopf svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+}
+.springen-icon {
+    display: none;
+    font-size: 1.2em;
+    line-height: 1;
 }
 .sprungmenue[open] summary {
     background-color: rgba(255, 140, 0, 0.15);
@@ -193,4 +206,52 @@ tbody tr:hover {
 .hinweis {
     font-size: 0.85em;
     color: #bbb;
+}
+
+/* Handy: Leiste muss in eine Zeile passen, sonst wird die Seite breiter als der Bildschirm
+   und verrutscht nach links */
+@media (max-width: 700px) {
+    .schnellwahl {
+        gap: 8px;
+        padding: 8px 12px;
+    }
+    .sprungmenue summary {
+        padding: 8px 12px;
+    }
+    .springen-text {
+        display: none;
+    }
+    .springen-icon {
+        display: inline;
+    }
+    /* Suche zugeklappt: nur die Lupe */
+    #suche, #treffer {
+        display: none;
+    }
+    #suche-oeffnen {
+        display: inline-flex;
+    }
+    .schaden-melden {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .schnellwahl .sprachwahl button {
+        padding: 4px 8px;
+    }
+    /* Suche aufgeklappt: die ganze Leiste ist das Suchfeld */
+    .schnellwahl.suche-offen > :not(#suche, #treffer, #suche-schliessen) {
+        display: none;
+    }
+    .schnellwahl.suche-offen #suche {
+        display: block;
+        max-width: none;
+    }
+    .schnellwahl.suche-offen #treffer {
+        display: inline;
+        white-space: nowrap;
+    }
+    .schnellwahl.suche-offen #suche-schliessen {
+        display: inline-flex;
+    }
 }

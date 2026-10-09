@@ -438,6 +438,22 @@ function sucheAnwenden() {
 }
 
 suchFeld.addEventListener('input', sucheAnwenden);
+
+// Handy: Lupe öffnet die Suche über die ganze Leiste, ✕ leert und schließt sie wieder
+const schnellwahl = document.querySelector('.schnellwahl');
+document.getElementById('suche-oeffnen').addEventListener('click', () => {
+    schnellwahl.classList.add('suche-offen');
+    suchFeld.focus();
+});
+function sucheSchliessen() {
+    schnellwahl.classList.remove('suche-offen');
+    suchFeld.value = '';
+    sucheAnwenden();
+}
+document.getElementById('suche-schliessen').addEventListener('click', sucheSchliessen);
+suchFeld.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && schnellwahl.classList.contains('suche-offen')) sucheSchliessen();
+});
 // Listen werden nachgeladen (z. B. nach Accept/Check in) – dann Suche erneut anwenden
 const beobachter = new MutationObserver(sucheAnwenden);
 tabellen.forEach(tabelle => beobachter.observe(tabelle, { childList: true }));
