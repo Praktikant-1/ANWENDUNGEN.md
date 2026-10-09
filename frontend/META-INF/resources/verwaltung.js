@@ -124,7 +124,7 @@ async function ladeBesucher() {
     }
     const besucherListe = await antwort.json();
     const heuteDa = besucherListe.filter(istHeute);
-    zeigeZahl('zahl-erwartet', heuteDa.length);
+    zeigeZahl('zahl-erwartet', heuteDa.filter(b => !b.ankunft).length);
     zeigeZahl('zahl-anwesend', heuteDa.filter(b => b.ankunft && !b.austritt).length);
 
     tabelle.innerHTML = '';
