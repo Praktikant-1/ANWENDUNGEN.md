@@ -29,6 +29,15 @@ input::-webkit-calendar-picker-indicator {
 input[type="date"], input[type="time"] {
     color-scheme: dark;
 }
+/* Datumsfeld mit "Heute"-Knopf daneben */
+.mit-heute {
+    display: flex;
+    gap: 6px;
+}
+.mit-heute input {
+    flex: 1;
+    min-width: 0;
+}
 input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: darkorange;

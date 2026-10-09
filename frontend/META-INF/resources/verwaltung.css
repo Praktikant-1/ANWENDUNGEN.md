@@ -161,6 +161,13 @@ tbody tr:hover {
 .badge-gesperrt   { background-color: #4d1414; color: #ff7b7b; }
 .badge-frei       { background-color: #333;    color: #ccc; }
 
+/* Knopf "PDF" (Besucherausweis) unter dem Status: etwas kleiner und mit Abstand zum Abzeichen */
+.ausweis-knopf {
+    margin-top: 6px;
+    padding: 4px 10px;
+    font-size: 0.85em;
+}
+
 /* Zeitpunkt unter dem Namen, wer einen Antrag entschieden hat */
 .entschieden-am {
     font-size: 0.85em;

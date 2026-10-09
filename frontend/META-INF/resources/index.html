@@ -191,10 +191,16 @@
             </label>
             <div class="nebeneinander">
                 <label><span data-i18n="spalte.von">From</span>
-                    <input name="von" type="date" required>
+                    <span class="mit-heute">
+                        <input name="von" type="date" required>
+                        <button type="button" data-i18n="datum.heute">Today</button>
+                    </span>
                 </label>
                 <label><span data-i18n="spalte.bis">Until</span>
-                    <input name="bis" type="date" required>
+                    <span class="mit-heute">
+                        <input name="bis" type="date" required>
+                        <button type="button" data-i18n="datum.heute">Today</button>
+                    </span>
                 </label>
             </div>
             <button type="submit" data-i18n="start.senden">Send request</button>
@@ -234,6 +240,15 @@
     von.min = heute;
     bis.min = heute;
     von.addEventListener('change', () => bis.min = von.value || heute);
+
+    // "Heute"-Knöpfe: tragen das heutige Datum in das Feld daneben ein
+    for (const knopf of document.querySelectorAll('.mit-heute button')) {
+        knopf.addEventListener('click', () => {
+            const feld = knopf.previousElementSibling;
+            feld.value = heute;
+            feld.dispatchEvent(new Event('change'));
+        });
+    }
 
     const meldung = document.getElementById('meldung');
     const hinweis = document.getElementById('code-hinweis');

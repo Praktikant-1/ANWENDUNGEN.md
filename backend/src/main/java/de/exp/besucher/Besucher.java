@@ -20,7 +20,7 @@ public class Besucher extends PanacheEntityBase {
     private String name;
     private String firma;
 
-    @Column(length = 2000)
+    @Column(length = 100)
 
     private String grund;
     private LocalDate datum;

@@ -124,7 +124,7 @@ async function ladeBesucher() {
     }
     const besucherListe = await antwort.json();
     const heuteDa = besucherListe.filter(istHeute);
-    zeigeZahl('zahl-erwartet', heuteDa.length);
+    zeigeZahl('zahl-erwartet', heuteDa.filter(b => !b.ankunft).length);
     zeigeZahl('zahl-anwesend', heuteDa.filter(b => b.ankunft && !b.austritt).length);
 
     tabelle.innerHTML = '';
@@ -208,6 +208,13 @@ async function ladeAntraege() {
         statusZelle.appendChild(badge);
         if (antrag.ablehnGrund) {
             statusZelle.append(' ' + antrag.ablehnGrund);
+        }
+        // Angenommen: Knopf darunter, öffnet den Besucherausweis in einem neuen Tab
+        if (antrag.status === 'ANGENOMMEN' && antrag.besucherId) {
+            const ausweisKnopf = knopf(t('verwaltung.ausweis'),
+                () => window.open(`/antraege/${antrag.id}/ausweis`, '_blank'));
+            ausweisKnopf.className = 'ausweis-knopf';
+            statusZelle.append(document.createElement('br'), ausweisKnopf);
         }
         zeile.appendChild(statusZelle);
 
@@ -448,6 +455,8 @@ document.getElementById('schaden-melden').addEventListener('click', () => {
     schadenDialog.showModal();
 });
 
+document.getElementById('schaden-datum-heute').addEventListener('click', () => schadenDatum.value = heute());
+
 document.getElementById('schaden-abbrechen').addEventListener('click', () => schadenDialog.close());
 
 schadenFormular.addEventListener('submit', async (event) => {
@@ -471,7 +480,6 @@ schadenFormular.addEventListener('submit', async (event) => {
     }
 });
 
-// Sprache gewechselt: Tabellen und Trefferzahl in der neuen Sprache neu aufbauen
 document.addEventListener('sprachwechsel', () => {
     ladeBesucher();
     ladeAntraege();
@@ -479,3 +487,11 @@ document.addEventListener('sprachwechsel', () => {
     ladeSperrliste();
     sucheAnwenden();
 });
+
+setInterval(() => {
+    if (document.activeElement.closest('table') || schadenDialog.open) return;
+    ladeBesucher();
+    ladeAntraege();
+    ladeSchaeden();
+    ladeSperrliste();
+}, 2000);

@@ -36,6 +36,10 @@ public class Antrag extends PanacheEntityBase {
     private String entschiedenVon;
     private LocalDateTime entschiedenAm;
 
+    // Besucher, der bei der Annahme angelegt wurde (für den Ausweis-Link).
+    // Nur die id statt @OneToOne, sonst blockiert der Fremdschlüssel das Löschen im LoeschfristenJob
+    private Long besucherId;
+
     public Antrag() {
     }
 
@@ -125,5 +129,13 @@ public class Antrag extends PanacheEntityBase {
 
     public void setEntschiedenAm(LocalDateTime entschiedenAm) {
         this.entschiedenAm = entschiedenAm;
+    }
+
+    public Long getBesucherId() {
+        return besucherId;
+    }
+
+    public void setBesucherId(Long besucherId) {
+        this.besucherId = besucherId;
     }
 }
