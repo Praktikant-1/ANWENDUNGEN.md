@@ -105,3 +105,22 @@ button[type="submit"]:hover {
     top: 12px;
     right: 16px;
 }
+
+/* Breite Tabellen auf dem Handy seitlich scrollbar statt die ganze Seite zu verkleinern */
+.tabelle-scroll {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+/* Handy: Sprachumschalter nicht über die Überschrift legen, sondern eine eigene Zeile darüber */
+@media (max-width: 700px) {
+    .sprachwahl.oben-rechts {
+        position: static;
+        display: flex;
+        justify-content: flex-end;
+        margin: 4px 0 0;
+    }
+    h1 {
+        overflow-wrap: break-word;
+    }
+}

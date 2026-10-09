@@ -90,6 +90,9 @@ const TEXTE = {
         // Verwaltung
         'verwaltung.seitentitel': 'EXPass – Besucherverwaltung',
         'verwaltung.springen': 'Springe zu ▾',
+        'verwaltung.springenTitel': 'Springe zu',
+        'verwaltung.sucheOeffnen': 'Suchen',
+        'verwaltung.sucheSchliessen': 'Suche schließen',
         'uebersicht.titel': 'Heute',
         'uebersicht.anwesend': 'Gerade im Haus',
         'uebersicht.erwartet': 'Besucher heute noch erwartet',
@@ -245,6 +248,9 @@ const TEXTE = {
 
         'verwaltung.seitentitel': 'EXPass – Visitor Management',
         'verwaltung.springen': 'Jump to ▾',
+        'verwaltung.springenTitel': 'Jump to',
+        'verwaltung.sucheOeffnen': 'Search',
+        'verwaltung.sucheSchliessen': 'Close search',
         'uebersicht.titel': 'Today',
         'uebersicht.anwesend': 'On site now',
         'uebersicht.erwartet': 'Visitors still expected today',
