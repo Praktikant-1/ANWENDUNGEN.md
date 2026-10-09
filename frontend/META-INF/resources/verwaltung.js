@@ -480,7 +480,6 @@ schadenFormular.addEventListener('submit', async (event) => {
     }
 });
 
-// Sprache gewechselt: Tabellen und Trefferzahl in der neuen Sprache neu aufbauen
 document.addEventListener('sprachwechsel', () => {
     ladeBesucher();
     ladeAntraege();
@@ -488,3 +487,11 @@ document.addEventListener('sprachwechsel', () => {
     ladeSperrliste();
     sucheAnwenden();
 });
+
+setInterval(() => {
+    if (document.activeElement.closest('table') || schadenDialog.open) return;
+    ladeBesucher();
+    ladeAntraege();
+    ladeSchaeden();
+    ladeSperrliste();
+}, 2000);
