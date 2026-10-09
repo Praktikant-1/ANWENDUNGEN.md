@@ -39,11 +39,19 @@ public class MailService {
     public void codeAnfordern(String email) {
         String adresse = normalisieren(email);
         geplanteMails.compute(adresse, (key, alteMail) -> {
+            // Erste Mail sofort; solange eine Mail wartet oder ein Code noch gilt, jede weitere erst nach 30 s
+            boolean ersteMail = (alteMail == null || alteMail.isDone()) && !hatGueltigenCode(adresse);
             if (alteMail != null) {
                 alteMail.cancel(false);
             }
-            return zeitplaner.schedule(() -> codeSenden(adresse), VERZOEGERUNG_SEKUNDEN, TimeUnit.SECONDS);
+            int verzoegerung = ersteMail ? 0 : VERZOEGERUNG_SEKUNDEN;
+            return zeitplaner.schedule(() -> codeSenden(adresse), verzoegerung, TimeUnit.SECONDS);
         });
+    }
+
+    private boolean hatGueltigenCode(String adresse) {
+        Code code = codes.get(adresse);
+        return code != null && Instant.now().isBefore(code.gueltigBis());
     }
 
     public boolean codePruefen(String email, String eingabe) {
